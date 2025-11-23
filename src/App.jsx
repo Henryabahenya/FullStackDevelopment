@@ -1,5 +1,6 @@
 import { useQuery } from '@apollo/client/react'
 import { useState } from 'react'
+import Notify from './components/Notify'
 import PersonForm from './components/PersonForm'
 import Persons from './components/Persons'
 import { ALL_PERSONS } from './queries'
@@ -26,13 +27,6 @@ const App = () => {
       <PersonForm setError={notify} />
     </div>
   )
-}
-
-const Notify = ({ errorMessage }) => {
-  if (!errorMessage) {
-    return null
-  }
-  return <div style={{ color: 'red' }}>{errorMessage}</div>
 }
 
 export default App

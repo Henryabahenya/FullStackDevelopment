@@ -8,7 +8,9 @@ import PhoneForm from './components/PhoneForm'
 import { ALL_PERSONS } from './queries'
 
 const App = () => {
-  const [token, setToken] = useState(null)
+  const [token, setToken] = useState(
+    localStorage.getItem('phonebook-user-token'),
+  )
   const [errorMessage, setErrorMessage] = useState(null)
   const result = useQuery(ALL_PERSONS)
   const client = useApolloClient()

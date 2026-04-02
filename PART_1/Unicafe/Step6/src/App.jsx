@@ -15,8 +15,10 @@ const StatisticLine = ({ text, value }) => {
   console.log('StatisticLine rendering:', text, value)
   return (
     <tr>
+
       <td>{text}</td>
       <td>{value}</td>
+
     </tr>
   )
 }
@@ -42,6 +44,7 @@ const Statistics = ({ good, neutral, bad }) => {
   
   return (
     <div>
+
       <h1>statistics</h1>
       <table>
         <tbody>
@@ -53,6 +56,7 @@ const Statistics = ({ good, neutral, bad }) => {
           <StatisticLine text="positive" value={positive + " %"} />
         </tbody>
       </table>
+      
     </div>
   )
 }

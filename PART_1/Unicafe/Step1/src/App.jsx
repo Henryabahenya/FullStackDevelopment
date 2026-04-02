@@ -8,7 +8,8 @@ const App = () => {
   
 console.log('Rendering App component')
 console.log('Current state - good:', good, 'neutral:', neutral, 'bad:', bad)
-  return (
+  
+return (
     <div>
       <h1><b>give feedback</b></h1>
       <button onClick={
@@ -19,6 +20,7 @@ console.log('Current state - good:', good, 'neutral:', neutral, 'bad:', bad)
       <h1><b>statistics</b></h1>
       <p>good {good}</p>
       <p>neutral {neutral}</p>
+     
       <p>bad {bad}</p>
     </div>
   )

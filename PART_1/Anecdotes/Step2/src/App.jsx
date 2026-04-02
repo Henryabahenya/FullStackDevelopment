@@ -21,6 +21,7 @@ const App = () => {
     const randomIndex = Math.floor(Math.random() * anecdotes.length)
     setSelected(randomIndex)
   }
+  
 
   const handleVote = () => {
   
@@ -28,6 +29,7 @@ const App = () => {
 
     copy[selected] += 1
     
+
     console.log('Voting for index:', selected)
     console.log('Updated vote count for this anecdote:', copy[selected])
     console.log('Full votes array state:', copy)

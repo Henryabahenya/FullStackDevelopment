@@ -12,6 +12,7 @@ const Part = ({ part }) => {
   )
 }
 
+
 const Content = ({ parts }) => {
   console.log('Content rendering with parts array:', parts)
   return (
@@ -22,6 +23,7 @@ const Content = ({ parts }) => {
     </div>
   )
 }
+
 
 const Total = ({ parts }) => {
   console.log('--- Starting Reduce Calculation ---')
@@ -37,6 +39,7 @@ const Total = ({ parts }) => {
     <p><strong>total of {total} exercises</strong></p>
   )
 }
+
 
 const Course = ({ course }) => {
   console.log('Course component received data for:', course.name)

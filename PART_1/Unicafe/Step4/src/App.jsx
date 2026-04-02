@@ -35,6 +35,7 @@ const Statistics = (props) => {
 }
 
 const App = () => {
+
   const [good, setGood] = useState(0)
   const [neutral, setNeutral] = useState(0)
   const [bad, setBad] = useState(0)
@@ -43,6 +44,7 @@ const App = () => {
 
   return (
     <div>
+      
       <h1><b>give feedback</b></h1>
       <button onClick={() => setGood(good + 1)}>good</button>
       <button onClick={() => setNeutral(neutral + 1)}>neutral</button>

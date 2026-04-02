@@ -4,6 +4,7 @@ const Header = (props) => {
   return <h1>{props.course}</h1>
 }
 
+
 const Part = (props) => {
   console.log("props in Part: ", props)
   return (
@@ -12,6 +13,7 @@ const Part = (props) => {
     </p>
   )
 }
+
 
 const Content = (props) => {
   console.log("props in Content: ", props)  
@@ -23,6 +25,7 @@ const Content = (props) => {
     </div>
   )
 }
+
 
 const Total = (props) => {
   console.log("props in Total: ", props)

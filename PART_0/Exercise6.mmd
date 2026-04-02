@@ -2,10 +2,12 @@ sequenceDiagram
     participant browser
     participant server
 
+
     Note over browser: User writes a note and clicks the Save button
     
     Note right of browser: JavaScript handles the submit event, adds the note to the local list, and rerenders the view
     
+
     browser->>server: POST https://studies.cs.helsinki.fi/exampleapp/new_note_spa
     activate server
     Note right of browser: The data is sent as JSON: { "content": "single page app helper", "date": "2026-02-09" }

@@ -3,6 +3,7 @@ const Header = ({ name }) => {
   return <h2>{name}</h2>
 }
 
+
 const Part = ({ part }) => {
   console.log('  Part rendering:', part.name)
   return (
@@ -41,6 +42,7 @@ const Course = ({ course }) => {
       <Header name={course.name} />
       <Content parts={course.parts} />
       <Total parts={course.parts} />
+   
     </div>
   )
 }

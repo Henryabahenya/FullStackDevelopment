@@ -4,6 +4,7 @@ const Header = (props) => {
   return <h1>{props.course}</h1>
 }
 
+
 const Part = (props) => {
     console.log("Props received:", props)
   return (
@@ -12,6 +13,7 @@ const Part = (props) => {
     </p>
   )
 }
+
 
 const Content = (props) => {
     console.log("Props received:", props)
@@ -24,6 +26,7 @@ const Content = (props) => {
     </div>
   )
 }
+
 
 const Total = (props) => {
   console.log("Props received:", props)

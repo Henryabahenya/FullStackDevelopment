@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+
 const App = () => {
   const anecdotes = [
     'If it hurts, do it more often.',
@@ -24,6 +25,7 @@ const App = () => {
     setSelected(randomIndex)
   }
 
+
   return (
     <div>
       <p>{anecdotes[selected]}</p>
@@ -33,5 +35,7 @@ const App = () => {
     </div>
   )
 }
+
+
 
 export default App

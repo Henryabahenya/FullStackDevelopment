@@ -1,4 +1,5 @@
 const Header = ({ name }) => {
+  
   console.log('Header rendering with name:', name)
   return <h1>{name}</h1>
 }
@@ -13,6 +14,7 @@ const Part = ({ part }) => {
 }
 
 const Content = ({ parts }) => {
+  
   console.log('Content rendering with parts array:', parts)
   return (
     <div>

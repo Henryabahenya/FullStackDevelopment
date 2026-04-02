@@ -46,9 +46,11 @@ const Course = ({ course }) => {
   console.log('Course component received data for:', course.name)
   return (
     <div>
+
       <Header name={course.name} />
       <Content parts={course.parts} />
       <Total parts={course.parts} />
+
     </div>
   )
 }
@@ -62,6 +64,7 @@ const App = () => {
       { name: 'Using props to pass data', exercises: 7, id: 2 },
       { name: 'State of a component', exercises: 14, id: 3 },
       { name: 'Redux', exercises: 11, id: 4 }
+    
     ]
   }
 

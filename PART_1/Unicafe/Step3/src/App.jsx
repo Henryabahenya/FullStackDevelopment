@@ -20,6 +20,7 @@ const Statistics = (props) => {
       <p>positive {positive} %</p>
     </div>
   )
+
 }
 
 const App = () => {
@@ -38,6 +39,7 @@ const App = () => {
 
     
       <Statistics good={good} neutral={neutral} bad={bad} />
+   
     </div>
   )
 }

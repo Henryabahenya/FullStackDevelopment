@@ -1,38 +1,43 @@
 import { useState } from 'react'
 
 const App = () => {
-
   const [persons, setPersons] = useState([
     { name: 'Arto Hellas' }
   ]) 
-
   const [newName, setNewName] = useState('')
 
   const handleNameChange = (event) => {
-    console.log('Typing:', event.target.value)
+    console.log('Input value:', event.target.value)
     setNewName(event.target.value)
   }
 
- 
   const addPerson = (event) => {
-    event.preventDefault() 
-    console.log('Button clicked, adding:', newName)
+    event.preventDefault()
+    
+    console.log('Checking for duplicate:', newName)
 
-    const nameObject = {
+    const nameExists = persons.some(person => person.name === newName)
+    console.log('Does name exist?', nameExists)
+
+    if (nameExists) {
+      alert(`${newName} is already added to phonebook`)
+      console.log('Action blocked: Duplicate found')
+      return
+    }
+
+    const personObject = {
       name: newName
     }
 
-  
-    setPersons(persons.concat(nameObject))
+    setPersons(persons.concat(personObject))
     setNewName('')
+    
+    console.log('Person added successfully')
   }
 
   return (
     <div>
       <h2>Phonebook</h2>
-   
- 
-
       <form onSubmit={addPerson}>
         <div>
           name: <input value={newName} onChange={handleNameChange} />
@@ -41,14 +46,12 @@ const App = () => {
           <button type="submit">add</button>
         </div>
       </form>
-
       <h2>Numbers</h2>
-      <ul>
-      
+      <div>
         {persons.map(person => 
-          <li key={person.name}>{person.name}</li>
+          <div key={person.name}>{person.name}</div>
         )}
-      </ul>
+      </div>
     </div>
   )
 }

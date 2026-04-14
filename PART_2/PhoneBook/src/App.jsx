@@ -18,23 +18,33 @@ const App = () => {
 
   const addPerson = (event) => {
     event.preventDefault()
-  
-    const nameObject = {
+    
+    const personObject = {
       name: newName,
-      number: newNumber,
-      id: String(persons.length + 1)
+      number: newNumber
     }
-    setPersons(persons.concat(nameObject))
-    setNewName('')
-    setNewNumber('')
+
+    console.log('sending post request...')
+    axios
+      .post('http://localhost:3002/persons', personObject)
+      .then(response => {
+        console.log('server response received', response.data)
+        setPersons(persons.concat(response.data))
+        setNewName('')
+        setNewNumber('')
+      })
   }
 
   return (
     <div>
       <h2>Phonebook</h2>
       <form onSubmit={addPerson}>
-        <div>name: <input value={newName} onChange={(e) => setNewName(e.target.value)} /></div>
-        <div>number: <input value={newNumber} onChange={(e) => setNewNumber(e.target.value)} /></div>
+        <div>
+          name: <input value={newName} onChange={(e) => setNewName(e.target.value)} />
+        </div>
+        <div>
+          number: <input value={newNumber} onChange={(e) => setNewNumber(e.target.value)} />
+        </div>
         <div><button type="submit">add</button></div>
       </form>
       <h2>Numbers</h2>

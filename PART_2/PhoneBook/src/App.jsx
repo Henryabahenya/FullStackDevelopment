@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import personService from './services/persons' // Import the service
 
 const App = () => {
   const [persons, setPersons] = useState([]) 
@@ -8,11 +8,11 @@ const App = () => {
 
   useEffect(() => {
     console.log('effect triggered')
-    axios
-      .get('http://localhost:3002/persons')
-      .then(response => {
+    personService
+      .getAll()
+      .then(initialPersons => {
         console.log('promise fulfilled')
-        setPersons(response.data)
+        setPersons(initialPersons)
       })
   }, []) 
 
@@ -24,12 +24,12 @@ const App = () => {
       number: newNumber
     }
 
-    console.log('sending post request...')
-    axios
-      .post('http://localhost:3002/persons', personObject)
-      .then(response => {
-        console.log('server response received', response.data)
-        setPersons(persons.concat(response.data))
+    console.log('sending post request via service...')
+    personService
+      .create(personObject)
+      .then(returnedPerson => {
+        console.log('server response received', returnedPerson)
+        setPersons(persons.concat(returnedPerson))
         setNewName('')
         setNewNumber('')
       })
@@ -39,12 +39,8 @@ const App = () => {
     <div>
       <h2>Phonebook</h2>
       <form onSubmit={addPerson}>
-        <div>
-          name: <input value={newName} onChange={(e) => setNewName(e.target.value)} />
-        </div>
-        <div>
-          number: <input value={newNumber} onChange={(e) => setNewNumber(e.target.value)} />
-        </div>
+        <div>name: <input value={newName} onChange={(e) => setNewName(e.target.value)} /></div>
+        <div>number: <input value={newNumber} onChange={(e) => setNewNumber(e.target.value)} /></div>
         <div><button type="submit">add</button></div>
       </form>
       <h2>Numbers</h2>

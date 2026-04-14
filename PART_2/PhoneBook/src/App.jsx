@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import personService from './services/persons' // Import the service
+import personService from './services/persons'
 
 const App = () => {
   const [persons, setPersons] = useState([]) 
@@ -7,32 +7,31 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
 
   useEffect(() => {
-    console.log('effect triggered')
-    personService
-      .getAll()
-      .then(initialPersons => {
-        console.log('promise fulfilled')
-        setPersons(initialPersons)
-      })
-  }, []) 
+    personService.getAll().then(initialPersons => {
+      console.log('Initial data loaded')
+      setPersons(initialPersons)
+    })
+  }, [])
 
   const addPerson = (event) => {
     event.preventDefault()
-    
-    const personObject = {
-      name: newName,
-      number: newNumber
-    }
+    const personObject = { name: newName, number: newNumber }
 
-    console.log('sending post request via service...')
-    personService
-      .create(personObject)
-      .then(returnedPerson => {
-        console.log('server response received', returnedPerson)
-        setPersons(persons.concat(returnedPerson))
-        setNewName('')
-        setNewNumber('')
-      })
+    personService.create(personObject).then(returnedPerson => {
+      console.log('Person added:', returnedPerson)
+      setPersons(persons.concat(returnedPerson))
+      setNewName('')
+      setNewNumber('')
+    })
+  }
+
+  const deletePerson = (id, name) => {
+    window.confirm(`Delete ${name}?`) 
+      ? personService.remove(id).then(() => {
+          console.log(`Deleted person with id: ${id}`)
+          setPersons(persons.filter(p => p.id !== id))
+        })
+      : console.log('Deletion canceled by user')
   }
 
   return (
@@ -46,7 +45,10 @@ const App = () => {
       <h2>Numbers</h2>
       <ul>
         {persons.map(person => 
-          <li key={person.id}>{person.name} {person.number}</li>
+          <li key={person.id}>
+            {person.name} {person.number} 
+            <button onClick={() => deletePerson(person.id, person.name)}>delete</button>
+          </li>
         )}
       </ul>
     </div>

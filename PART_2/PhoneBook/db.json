@@ -1,11 +1,6 @@
 {
   "persons": [
     {
-      "name": "Arto Hellas",
-      "number": "040-123456",
-      "id": "1"
-    },
-    {
       "name": "Ada Lovelace",
       "number": "39-44-5323523",
       "id": "2"
@@ -25,6 +20,6 @@
       "number": "+254768407749",
       "id": "i_GKULzzlmM"
     }
-  ]
-
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }

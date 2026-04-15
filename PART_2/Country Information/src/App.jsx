@@ -25,23 +25,32 @@ const App = () => {
     setFilteredCountries(results)
   }
 
+  const showCountry = (countryName) => {
+    const selected = countries.filter(c => c.name.common === countryName)
+    setFilteredCountries(selected)
+  }
+
   return (
     <div>
       <div>
         find countries <input value={query} onChange={handleSearch} />
       </div>
-      <Display results={filteredCountries} />
+      <Display results={filteredCountries} onShow={showCountry} />
     </div>
   )
 }
 
-const Display = ({ results }) => (
+const Display = ({ results, onShow }) => (
   results.length > 10
     ? <div>Too many matches, specify another filter</div>
     : results.length > 1
-      ? <ul>
-          {results.map(c => <li key={c.cca3}>{c.name.common}</li>) }
-        </ul>
+      ? <div>
+          {results.map(c => (
+            <div key={c.cca3}>
+              {c.name.common} <button onClick={() => onShow(c.name.common)}>Show</button>
+            </div>
+          ))}
+        </div>
       : results.length === 1
         ? <CountryDetail country={results[0]} />
         : null
@@ -67,5 +76,4 @@ const CountryDetail = ({ country }) => (
     />
   </div>
 )
-
 export default App

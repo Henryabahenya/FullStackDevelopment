@@ -21,6 +21,10 @@ let persons= [
       "id": "4",
       "name": "Mary Poppendieck", 
       "number": "39-23-6423122"
+    },
+    {"id" : "5",
+    "name" : "Henry Abahenya",
+    "number" : "+254768407749"
     }
 ]
 
@@ -38,7 +42,12 @@ app.get('/info',(req,res) => {
 res.send(resText)
 })
 
+app.get('/api/persons/:id',(req,res) => {
+    const id = req.params.id
+    const person = persons.find(person => person.id === id)
 
+    res.json(person)
+})
 const PORT = 3001
 app.listen(PORT, ()=>{
     console.log(`Server is running on ${PORT}`)

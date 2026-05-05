@@ -2,11 +2,13 @@ const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
 
-
 const app = express()
 
 app.use(express.json())
 app.use(cors())
+
+
+app.use(express.static('dist'))
 
 morgan.token('body', (req, res) => {
   return JSON.stringify(req.body)
@@ -42,11 +44,9 @@ let persons = [
     }
 ]
 
-
 app.get('/api/persons', (req, res) => {
     res.json(persons)
 })
-
 
 app.get('/info', (req, res) => {
     const count = persons.length
@@ -57,7 +57,6 @@ app.get('/info', (req, res) => {
     `
     res.send(resText)
 })
-
 
 app.get('/api/persons/:id', (req, res) => {
     const id = req.params.id
@@ -79,13 +78,11 @@ app.delete('/api/persons/:id', (req, res) => {
 app.post('/api/persons', (req, res) => {
     const body = req.body 
 
-
     if (!body.name || !body.number) {
         return res.status(400).json({ 
             error: 'name or number is missing' 
         })
     }
-
 
     const nameExists = persons.find(p => p.name === body.name)
     if (nameExists) {
@@ -97,7 +94,6 @@ app.post('/api/persons', (req, res) => {
     const person = {
         name: body.name,
         number: body.number,
-   
         id: String(Math.floor(Math.random() * 1000000)),
     }
 
@@ -106,7 +102,14 @@ app.post('/api/persons', (req, res) => {
 })
 
 
-const PORT = 3002
+const unknownEndpoint = (req, res) => {
+  res.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
+
+
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`)
+    console.log(`Server is running on port ${PORT}`)
 })

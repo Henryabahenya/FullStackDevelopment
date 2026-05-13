@@ -1,4 +1,5 @@
 require('dotenv').config() 
+
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
@@ -48,21 +49,26 @@ app.get('/api/persons/:id', (req, res, next) => {
 })
 
 
-app.post('/api/persons', (req, res) => {
-  const body = req.body 
+app.post('/api/persons', (request, response) => {
+  const body = request.body
 
+  // Basic validation to ensure name and number exist
   if (!body.name || !body.number) {
-    return res.status(400).json({ error: 'name or number is missing' })
+    return response.status(400).json({ 
+      error: 'name or number is missing' 
+    })
   }
 
-
+  // Create a new instance of the Person model
   const person = new Person({
     name: body.name,
     number: body.number,
   })
 
+  // Save to MongoDB
   person.save().then(savedPerson => {
-    res.json(savedPerson)
+    // Return the saved person (which now includes a MongoDB id)
+    response.json(savedPerson)
   })
 })
 

@@ -23,16 +23,15 @@ app.get('/api/persons', (req, res) => {
     res.json(persons)
   })
 })
-
-
-app.get('/info', (req, res) => {
-  Person.countDocuments({}).then(count => {
-    const date = new Date()
-    res.send(`
+app.get('/info', (req, res, next) => {
+  Person.countDocuments({})
+    .then(count => {
+      res.send(`
         <p>Phonebook has info for ${count} people</p>
-        <p>${date}</p>
-    `)
-  })
+        <p>${new Date()}</p>
+      `)
+    })
+    .catch(error => next(error))
 })
 
 
@@ -42,6 +41,7 @@ app.get('/api/persons/:id', (req, res, next) => {
       if (person) {
         res.json(person)
       } else {
+        
         res.status(404).end()
       }
     })

@@ -72,10 +72,11 @@ app.post('/api/persons', (request, response) => {
   })
 })
 
-app.delete('/api/persons/:id', (req, res, next) => {
-  Person.findByIdAndDelete(req.params.id)
+app.delete('/api/persons/:id', (request, response, next) => {
+  Person.findByIdAndDelete(request.params.id)
     .then(result => {
-      res.status(204).end()
+      
+      response.status(204).end()
     })
     .catch(error => next(error))
 })

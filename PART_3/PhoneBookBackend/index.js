@@ -52,25 +52,26 @@ app.get('/api/persons/:id', (req, res, next) => {
 app.post('/api/persons', (request, response) => {
   const body = request.body
 
-  // Basic validation to ensure name and number exist
   if (!body.name || !body.number) {
     return response.status(400).json({ 
       error: 'name or number is missing' 
     })
   }
 
-  // Create a new instance of the Person model
+
   const person = new Person({
     name: body.name,
     number: body.number,
   })
 
-  // Save to MongoDB
+
   person.save().then(savedPerson => {
-    // Return the saved person (which now includes a MongoDB id)
+    
     response.json(savedPerson)
   })
-})
+}
+)
+
 
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
@@ -83,10 +84,13 @@ app.delete('/api/persons/:id', (request, response, next) => {
 
 
 
+
 const unknownEndpoint = (req, res) => {
   res.status(404).send({ error: 'unknown endpoint' })
 }
 app.use(unknownEndpoint)
+
+
 
 
 const errorHandler = (error, req, res, next) => {

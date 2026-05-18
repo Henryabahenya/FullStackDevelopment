@@ -24,43 +24,64 @@ const App = () => {
     })
   }, [])
 
-  const addPerson = (event) => {
-    event.preventDefault()
-    const existingPerson = persons.find(p => p.name === newName)
+  
 
-    existingPerson
-      ? window.confirm(`${newName} is already added, replace the old number?`)
-        ? personService
-            .update(existingPerson.id, { ...existingPerson, number: newNumber })
-            .then(returnedPerson => {
-              console.log('Update successful')
-              setPersons(persons.map(p => p.id !== existingPerson.id ? p : returnedPerson))
-              setMessageType('success')
-              setMessage(`Updated ${returnedPerson.name}`)
-              setTimeout(() => setMessage(null), 5000)
-              setNewName('')
-              setNewNumber('')
-            })
-            .catch(error => {
-              console.log('Error: Person already deleted from server')
-              setMessageType('error')
-              setMessage(`Information of ${newName} has already been removed from server`)
-              setPersons(persons.filter(p => p.id !== existingPerson.id))
-              setTimeout(() => setMessage(null), 5000)
-            })
-        : console.log('Update canceled by user')
-      : personService
-          .create({ name: newName, number: newNumber })
+  const addPerson = (event) => {
+  event.preventDefault()
+  const existingPerson = persons.find(p => p.name === newName)
+
+  existingPerson
+    ? window.confirm(`${newName} is already added, replace the old number?`)
+      ? personService
+          .update(existingPerson.id, { ...existingPerson, number: newNumber })
           .then(returnedPerson => {
-            console.log('Created new entry')
-            setPersons(persons.concat(returnedPerson))
+            console.log('Update successful')
+            setPersons(persons.map(p => p.id !== existingPerson.id ? p : returnedPerson))
             setMessageType('success')
-            setMessage(`Added ${returnedPerson.name}`)
+            setMessage(`Updated ${returnedPerson.name}`)
             setTimeout(() => setMessage(null), 5000)
             setNewName('')
             setNewNumber('')
           })
-  }
+          .catch(error => {
+            // Check if the update failed because of Mongoose validation (e.g., name too short)
+            if (error.response && error.response.data && error.response.data.error) {
+              setMessageType('error')
+              setMessage(error.response.data.error)
+            } else {
+              // Fallback for if the person was already deleted by another user
+              console.log('Error: Person already deleted from server')
+              setMessageType('error')
+              setMessage(`Information of ${newName} has already been removed from server`)
+              setPersons(persons.filter(p => p.id !== existingPerson.id))
+            }
+            setTimeout(() => setMessage(null), 5000)
+          })
+      : console.log('Update canceled by user')
+    : personService
+        .create({ name: newName, number: newNumber })
+        .then(returnedPerson => {
+          console.log('Created new entry')
+          setPersons(persons.concat(returnedPerson))
+          setMessageType('success')
+          setMessage(`Added ${returnedPerson.name}`)
+          setTimeout(() => setMessage(null), 5000)
+          setNewName('')
+          setNewNumber('')
+        })
+      .catch(error => {
+  // 1. Log the full object to your browser console so you can see its exact structure
+  console.log('Full error response data:', error.response.data)
+
+  // 2. Fall back to error.response.data.message if .error is empty
+  const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Validation failed'
+  
+  setMessageType('error')
+  setMessage(errorMessage) // This will now safely display the text string!
+  setTimeout(() => setMessage(null), 5000)
+})
+}
+
 
   const deletePerson = (id, name) => {
     window.confirm(`Delete ${name}?`)

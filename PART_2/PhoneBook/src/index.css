@@ -144,5 +144,14 @@ li button:hover {
   border-color: #fca5a5;
 }
 
-
+/* 7. Style the phone format guideline hint text */
+.format-hint {
+  display: block;
+  color: #64748b;        /* Matching your form text color */
+  font-size: 0.8rem;     /* Slightly smaller font so it looks like a caption */
+  margin-top: -10px;     /* Pulls it up closer to the input field above it */
+  margin-bottom: 15px;   /* Pushes the "add" button down nicely */
+  font-weight: 400;
+  line-height: 1.4;
+}
 

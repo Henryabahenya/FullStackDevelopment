@@ -119,8 +119,18 @@ const App = () => {
       <h3>add a new</h3>
 
       <form onSubmit={addPerson}>
-        <div>name: <input value={newName} onChange={(e) => setNewName(e.target.value)} /></div>
-        <div>number: <input value={newNumber} onChange={(e) => setNewNumber(e.target.value)} /></div>
+        <div>
+          name: <input value={newName} onChange={(e) => setNewName(e.target.value)} />
+        </div>
+        
+        <div>
+          number: <input value={newNumber} onChange={(e) => setNewNumber(e.target.value)} />
+          {/* 💡 THE INSTRUCTION SNIPPET GOES DIRECTLY HERE UNDER THE INPUT */}
+          <span style={{ display: 'block', color: '#64748b', fontSize: '0.8rem', marginTop: '-10px', marginBottom: '15px' }}>
+            Format: +[CountryCode]-[Numbers] (e.g., +254-712345678)
+          </span>
+        </div>
+        
         <div><button type="submit">add</button></div>
       </form>
 
@@ -136,5 +146,6 @@ const App = () => {
     </div>
   )
 }
+
 
 export default App

@@ -21,23 +21,24 @@ const personSchema = new mongoose.Schema({
     required: true
   },
   number: {
-    type: String,
-    required: true,
-    // 1. Enforce a minimum total length of 8 characters
-    minlength: [8, 'Phone number must have at least 8 characters'],
+  type: String,
+  required: true,
+  // 1. Enforce a minimum length (adjusted to 9 to account for the '+' character)
+  minlength: [9, 'Phone number with country code must have at least 9 characters'],
 
-    // 2. Use a custom validator with a Regular Expression (Regex)
-    validate: {
-      validator: function(v) {
-        // Regex broken down:
-        // ^\d{2,3}   -> Starts with exactly 2 or 3 digits
-        // -          -> Followed by a single hyphen
-        // \d+$       -> Ends with one or more digits until the end of the string
-        return /^\d{2,3}-\d+$/.test(v)
-      },
-      message: props => `${props.value} is not a valid phone number! Format must be XX-XXXXXXX or XXX-XXXXXXX.`
-    }
+  // 2. Use the updated custom validator with the new Country Code Regex
+  validate: {
+    validator: function(v) {
+      // Regex broken down:
+      // ^\+        -> Must start with a literal '+' sign
+      // \d{1,3}    -> Followed by a 1 to 3 digit country code (e.g., +254, +1, +44)
+      // -          -> Followed by a single hyphen
+      // \d+$       -> Ends with one or more digits until the end of the string
+      return /^\+\d{1,3}-\d+$/.test(v)
+    },
+    message: props => `${props.value} is not a valid phone number! Format must start with '+' followed by the country code and a hyphen (e.g., +254-712345678).`
   }
+}
 })
 
 

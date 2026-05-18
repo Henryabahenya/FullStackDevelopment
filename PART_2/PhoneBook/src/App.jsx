@@ -93,7 +93,7 @@ const App = () => {
             setMessage(`Deleted ${name}`)
             setTimeout(() => setMessage(null), 5000)
           })
-          .catch(error => {
+          .catch(() => {
             console.log('Error: Could not delete, resource missing')
             setMessageType('error')
             setMessage(`Information of ${name} was already removed from server`)

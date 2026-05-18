@@ -1,9 +1,9 @@
-require('dotenv').config() 
+require('dotenv').config()
 
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
-const Person = require('./models/person') 
+const Person = require('./models/person')
 
 const app = express()
 
@@ -12,7 +12,7 @@ app.use(express.static('dist'))
 app.use(express.json())
 app.use(cors())
 
-morgan.token('body', (req, res) => {
+morgan.token('body', (req,) => {
   return JSON.stringify(req.body)
 })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
@@ -41,11 +41,11 @@ app.get('/api/persons/:id', (req, res, next) => {
       if (person) {
         res.json(person)
       } else {
-        
+
         res.status(404).end()
       }
     })
-    .catch(error => next(error)) 
+    .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
@@ -62,7 +62,7 @@ app.put('/api/persons/:id', (request, response, next) => {
       if (updatedPerson) {
         response.json(updatedPerson)
       } else {
-       
+
         response.status(404).end()
       }
     })
@@ -71,7 +71,7 @@ app.put('/api/persons/:id', (request, response, next) => {
 
 
 // Ensure 'next' is added to the parameters here!
-app.post('/api/persons', (request, response, next) => { 
+app.post('/api/persons', (request, response, next) => {
   const body = request.body
 
   const person = new Person({
@@ -84,14 +84,14 @@ app.post('/api/persons', (request, response, next) => {
       response.json(savedPerson)
     })
     // This passes the ValidationError down to your custom errorHandler middleware!
-    .catch(error => next(error)) 
+    .catch(error => next(error))
 })
 
 
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
-    .then(result => {
-      
+    .then(() => {
+
       response.status(204).end()
     })
     .catch(error => next(error))
@@ -121,5 +121,5 @@ app.use(errorHandler)
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`)
+  console.log(`Server is running on port ${PORT}`)
 })

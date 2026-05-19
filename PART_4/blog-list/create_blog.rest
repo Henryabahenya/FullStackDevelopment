@@ -1,0 +1,13 @@
+GET http://localhost:3003/api/blogs
+
+###
+
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+  "title": "Mastering Full Stack Development",
+  "author": "Henry Abahenya",
+  "url": "https://fullstackopen.com/",
+  "likes": 42
+}

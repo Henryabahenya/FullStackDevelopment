@@ -4,9 +4,11 @@ const dummy = (blogs) => {
   return 1
 }
 
+on
 const totalLikes = (blogs) => {
   return blogs.reduce((sum, blog) => sum + blog.likes, 0)
 }
+
 
 const favoriteBlog = (blogs) => {
   if (blogs.length === 0) return null
@@ -20,14 +22,9 @@ const favoriteBlog = (blogs) => {
 
 
 const mostBlogs = (blogs) => {
-  if (blogs.length === 0) {
-    return null
-  }
-
+  if (blogs.length === 0) return null
   
   const authorCounts = _.countBy(blogs, 'author')
-
- 
   const authorArray = _.map(authorCounts, (blogsCount, authorName) => ({
     author: authorName,
     blogs: blogsCount
@@ -36,9 +33,26 @@ const mostBlogs = (blogs) => {
   return _.maxBy(authorArray, 'blogs')
 }
 
+
+const mostLikes = (blogs) => {
+  if (blogs.length === 0) return null
+
+  const groupedByAuthor = _.groupBy(blogs, 'author')
+  const authorLikesArray = _.map(groupedByAuthor, (authorBlogs, authorName) => {
+    return {
+      author: authorName,
+      likes: _.sumBy(authorBlogs, 'likes')
+    }
+  })
+
+  return _.maxBy(authorLikesArray, 'likes')
+}
+
+
 module.exports = {
   dummy,
   totalLikes,
   favoriteBlog,
-  mostBlogs
+  mostBlogs,
+  mostLikes
 }

@@ -1,4 +1,3 @@
-// 1. MAKE SURE THESE TWO LINES ARE EXACTLY AS SHOWN
 const { test, describe, beforeEach, before, after } = require('node:test')
 const assert = require('node:assert')
 
@@ -75,6 +74,31 @@ describe('blog api tests', () => {
       .expect('Content-Type', /application\/json/)
 
     assert.strictEqual(response.body.likes, 0)
+  })
+  test('blog without title is not added', async () => {
+    const newBlogWithoutTitle = {
+      author: 'Henry Abahenya',
+      url: 'https://fullstackopen.com/',
+      likes: 5
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlogWithoutTitle)
+      .expect(400)
+  })
+
+  test('blog without url is not added', async () => {
+    const newBlogWithoutUrl = {
+      title: 'Testing Missing URL Validation',
+      author: 'Henry Abahenya',
+      likes: 5
+    }
+
+    await api
+      .post('/api/blogs')
+      .send(newBlogWithoutUrl)
+      .expect(400)
   })
 
   after(async () => {

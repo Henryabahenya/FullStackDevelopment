@@ -9,11 +9,11 @@ const Blog = require('../models/blog')
 const helper = require('./test_helper')
 
 describe('blog api tests', () => {
-  // Reset the test database before running each test case
+ 
   beforeEach(async () => {
     await Blog.deleteMany({})
     
-    // Insert our initial test blogs array
+    
     for (let blog of helper.initialBlogs) {
       let blogObject = new Blog(blog)
       await blogObject.save()
@@ -26,12 +26,22 @@ describe('blog api tests', () => {
       .expect(200)
       .expect('Content-Type', /application\/json/)
 
-    // Assert that the array length matches our initial dataset length (2)
     assert.strictEqual(response.body.length, helper.initialBlogs.length)
   })
 })
 
-// Clean up database connection after all tests finish
+test('blogs have a unique identifier property named id', async () => {
+  const response = await api.get('/api/blogs')
+
+
+  const firstBlog = response.body[0]
+
+  assert.ok(firstBlog.id)
+  
+
+  assert.strictEqual(firstBlog._id, undefined)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })

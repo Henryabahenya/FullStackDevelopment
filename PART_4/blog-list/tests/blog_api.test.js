@@ -117,6 +117,32 @@ describe('blog api tests', () => {
   assert.ok(!titles.includes(blogToDelete.title))
 })
 
+test('a blog post can have its likes updated', async () => {
+    const blogsAtStart = await helper.blogsInDb()
+    const blogToUpdate = blogsAtStart[0]
+
+    const updatedBlogData = {
+      title: blogToUpdate.title,
+      author: blogToUpdate.author,
+      url: blogToUpdate.url,
+      likes: blogToUpdate.likes + 10 
+    }
+
+    
+    const response = await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send(updatedBlogData)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+    assert.strictEqual(response.body.likes, blogToUpdate.likes + 10)
+
+   
+    const blogsAtEnd = await helper.blogsInDb()
+    const finalBlog = blogsAtEnd.find(b => b.id === blogToUpdate.id)
+    assert.strictEqual(finalBlog.likes, blogToUpdate.likes + 10)
+  })
+
   after(async () => {
     await mongoose.connection.close()
   })

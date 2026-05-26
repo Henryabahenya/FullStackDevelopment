@@ -9,12 +9,32 @@ usersRouter.get('/', async (request, response) => {
   response.json(users)
 })
 
-// 2. POST request to create a new user
+// 2. POST request to create a new user (Updated for 4.16 validations)
 usersRouter.post('/', async (request, response) => {
   const { username, name, password } = request.body
 
-  // For 4.15, we'll keep it basic. (Validation constraints come in 4.16!)
-  const saltRounds = 10
+  // Check 1: Ensure both username and password exist
+  if (!username || !password) {
+    return response.status(400).json({
+      error: 'both username and password are required'
+    })
+  }
+
+  
+  if (username.length < 3) {
+    return response.status(400).json({
+      error: 'username must be at least 3 characters long'
+    })
+  }
+
+ 
+  if (password.length < 3) {
+    return response.status(400).json({
+      error: 'password must be at least 3 characters long'
+    })
+  }
+
+  
   const passwordHash = await bcrypt.hash(password, saltRounds)
 
   const user = new User({

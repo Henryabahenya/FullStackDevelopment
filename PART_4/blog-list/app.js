@@ -7,6 +7,7 @@ const logger = require("./utils/logger");
 const mongoose = require("mongoose");
 const usersRouter = require("./controllers/users");
 const middleware = require("./utils/middleware"); // Import your new middleware
+const loginRouter = require('./controllers/login')
 
 logger.info("Connecting to", config.MONGODB_URI);
 
@@ -23,6 +24,7 @@ app.use(cors());
 app.use(express.json());
 
 // Routers
+app.use('/api/login', loginRouter)
 app.use("/api/blogs", blogsRouter);
 app.use("/api/users", usersRouter);
 

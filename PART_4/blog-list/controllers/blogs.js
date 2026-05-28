@@ -2,6 +2,14 @@ const blogsRouter = require("express").Router();
 const Blog = require("../models/blog");
 const User = require("../models/user"); // Import the User model
 
+const getTokenFrom = request => {
+  const authorization = request.get('authorization')
+  if (authorization && authorization.startsWith('Bearer ')) {
+    return authorization.replace('Bearer ', '')
+  }
+  return null
+}
+
 // ... keep your GET route here ...
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog
@@ -11,38 +19,46 @@ blogsRouter.get('/', async (request, response) => {
   response.json(blogs)
 })
 
-blogsRouter.post("/", async (request, response) => {
-  const { title, author, url, likes } = request.body;
+
+const jwt = require('jsonwebtoken') // Import jwt at the top
+
+blogsRouter.post('/', async (request, response) => {
+  const { title, author, url, likes } = request.body
 
   if (!title || !url) {
-    return response.status(400).end();
+    return response.status(400).end()
   }
 
-  // Find any arbitrary user from your database
-  const user = await User.findOne({});
-
-  if (!user) {
-    return response
-      .status(400)
-      .json({ error: "No users found in database to assign as creator" });
+  // Extract the raw token string from the request headers
+  const token = getTokenFrom(request)
+  
+  // Decode and verify the signature using our environmental secret
+  const decodedToken = jwt.verify(token, process.env.SECRET)
+  
+  // If the token is missing or invalid, jwt.verify throws an error handled by our middleware,
+  // but we explicitly check for the ID property here to be safe
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'token invalid' })
   }
+
+  // Find the exact user bound to the token payload
+  const user = await User.findById(decodedToken.id)
 
   const blog = new Blog({
     title,
     author,
     url,
     likes,
-    user: user.id, // Save the creator's ID in the blog document
-  });
+    user: user.id
+  })
 
-  const savedBlog = await blog.save();
+  const savedBlog = await blog.save()
+  
+  user.blogs = user.blogs.concat(savedBlog._id)
+  await user.save()
 
-  // Append the newly created blog's ID to the user's internal list of blogs
-  user.blogs = user.blogs.concat(savedBlog._id);
-  await user.save();
-
-  response.status(201).json(savedBlog);
-});
+  response.status(201).json(savedBlog)
+})
 
 // Correct DELETE path: Only /:id
 blogsRouter.delete("/:id", async (request, response) => {

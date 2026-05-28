@@ -18,7 +18,7 @@ describe('when there is initially some blogs saved', () => {
     const testUser = new User({
       username: 'test_admin',
       name: 'Test Admin',
-      passwordHash: 'hashed_password_placeholder' // Normally hashed via bcrypt
+      passwordHash: 'hashed_password_placeholder'
     })
     await testUser.save()
 
@@ -50,7 +50,6 @@ describe('when there is initially some blogs saved', () => {
       likes: 12
     }
 
-    // Pass the token inside the Authorization header string layout
     await api
       .post('/api/blogs')
       .set('Authorization', `Bearer ${token}`)
@@ -73,16 +72,60 @@ describe('when there is initially some blogs saved', () => {
       likes: 0
     }
 
-    // Intentionally omit setting the Authorization header
     await api
       .post('/api/blogs')
       .send(newBlog)
       .expect(401)
 
     const blogsAtEnd = await Blog.find({})
-    assert.strictEqual(blogsAtEnd.length, 1) // Assert no blog was added
+    assert.strictEqual(blogsAtEnd.length, 1)
   })
-})
+
+  // --- MOVED INSIDE THE DESCRIBE BLOCK ---
+  test('a blog can be deleted by its creator', async () => {
+    const blogsAtStart = await Blog.find({})
+    const blogToCancel = blogsAtStart[0]
+
+    await api
+      .delete(`/api/blogs/${blogToCancel.id}`)
+      .set('Authorization', `Bearer ${token}`) // Now correctly has access to token!
+      .expect(204)
+
+    const blogsAtEnd = await Blog.find({})
+    assert.strictEqual(blogsAtEnd.length, blogsAtStart.length - 1)
+
+    const titles = blogsAtEnd.map(r => r.title)
+    assert(!titles.includes(blogToCancel.title))
+  })
+
+  test('deleting a blog fails with status code 403 if attempted by a non-creator user', async () => {
+    const blogsAtStart = await Blog.find({})
+    const blogToCancel = blogsAtStart[0]
+
+    const maliciousUser = new User({
+      username: 'imposter',
+      name: 'Imposter Dev',
+      passwordHash: 'wrong_hash'
+    })
+    await maliciousUser.save()
+
+    const jwt = require('jsonwebtoken')
+    const imposterToken = jwt.sign(
+      { username: maliciousUser.username, id: maliciousUser._id },
+      process.env.SECRET
+    )
+
+    await api
+      .delete(`/api/blogs/${blogToCancel.id}`)
+      .set('Authorization', `Bearer ${imposterToken}`)
+      .expect(403)
+
+    const blogsAtEnd = await Blog.find({})
+    assert.strictEqual(blogsAtEnd.length, blogsAtStart.length)
+  })
+  
+
+}) 
 
 after(async () => {
   await mongoose.connection.close()

@@ -55,11 +55,31 @@ blogsRouter.post('/', async (request, response) => {
 })
 
 // Correct DELETE path: Only /:id
-blogsRouter.delete("/:id", async (request, response) => {
-  await Blog.findByIdAndDelete(request.params.id);
-  response.status(204).end();
-});
+blogsRouter.delete('/:id', async (request, response) => {
+  // 1. Verify the incoming token from our middleware
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'token missing or invalid' })
+  }
 
+  // 2. Find the blog post to check ownership
+  const blog = await Blog.findById(request.params.id)
+  if (!blog) {
+    return response.status(404).json({ error: 'blog not found' })
+  }
+
+  // 3. Compare the creator's ID with the token user's ID
+  // We use .toString() as instructed because blog.user is a Mongoose ObjectId object
+  if (blog.user.toString() !== decodedToken.id.toString()) {
+    return response.status(403).json({ 
+      error: 'permission denied: only the creator can delete this blog' 
+    })
+  }
+
+  // 4. Authorized: Safe to delete
+  await Blog.findByIdAndDelete(request.params.id)
+  response.status(204).end()
+})
 // Correct PUT path: Only /:id
 
 blogsRouter.put('/:id', async (request, response) => {

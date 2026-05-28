@@ -1,15 +1,36 @@
 const logger = require("./logger");
+const jwt = require('jsonwebtoken')
+const User = require('../models/user') // Import the User model here!
 
 const tokenExtractor = (request, response, next) => {
   const authorization = request.get('authorization')
-  
   if (authorization && authorization.startsWith('Bearer ')) {
     request.token = authorization.replace('Bearer ', '')
   } else {
     request.token = null
   }
+  next()
+}
 
-  next() 
+// NEW: Extracts the User from the token payload
+const userExtractor = async (request, response, next) => {
+  if (!request.token) {
+    return response.status(401).json({ error: 'token missing or invalid' })
+  }
+
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'token invalid' })
+  }
+
+  // Find the user and attach it directly to the request object
+  request.user = await User.findById(decodedToken.id)
+  
+  if (!request.user) {
+    return response.status(404).json({ error: 'user not found' })
+  }
+
+  next()
 }
 
 const unknownEndpoint = (request, response) => {
@@ -35,7 +56,8 @@ const errorHandler = (error, request, response, next) => {
 }
 
 module.exports = {
-  tokenExtractor, 
+  tokenExtractor,
+  userExtractor, 
   unknownEndpoint,
   errorHandler,
 };

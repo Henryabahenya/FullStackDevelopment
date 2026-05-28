@@ -1,49 +1,36 @@
 const blogsRouter = require("express").Router();
 const Blog = require("../models/blog");
-const User = require("../models/user"); // Import the User model
-const jwt = require('jsonwebtoken')
+const User = require("../models/user");
+const middleware = require('../utils/middleware'); // Used to pull userExtractor
 
-
-const getTokenFrom = request => {
-  const authorization = request.get('authorization')
-  if (authorization && authorization.startsWith('Bearer ')) {
-    return authorization.replace('Bearer ', '')
-  }
-  return null
-}
-
-// ... keep your GET route here ...
+// --- GET ROUTE ---
+// Remains wide open to the public; no token or user extractor required.
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog
     .find({})
-    .populate('user', { username: 1, name: 1, id: 1 }) // Explicitly include id
+    .populate('user', { username: 1, name: 1, id: 1 })
 
   response.json(blogs)
 })
 
-blogsRouter.post('/', async (request, response) => {
+// --- POST ROUTE ---
+// Chained with middleware.userExtractor to capture request.user automatically
+blogsRouter.post('/', middleware.userExtractor, async (request, response) => {
   const { title, author, url, likes } = request.body
 
   if (!title || !url) {
     return response.status(400).end()
   }
 
-  // Look how clean! The old getTokenFrom line is completely gone.
-  // We extract the token directly from the request object populated by the middleware.
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'token invalid' })
-  }
-
-  const user = await User.findById(decodedToken.id)
+  // Look how clean! The middleware already found and attached our full user document
+  const user = request.user
 
   const blog = new Blog({
     title,
     author,
     url,
-    likes: likes || 0, // Defaults to 0 if missing
-    user: user.id
+    likes: likes || 0,
+    user: user._id // Safe reference to the user ID
   })
 
   const savedBlog = await blog.save()
@@ -54,34 +41,30 @@ blogsRouter.post('/', async (request, response) => {
   response.status(201).json(savedBlog)
 })
 
-// Correct DELETE path: Only /:id
-blogsRouter.delete('/:id', async (request, response) => {
-  // 1. Verify the incoming token from our middleware
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'token missing or invalid' })
-  }
+// --- DELETE ROUTE ---
+// Chained with middleware.userExtractor to guard the resource against non-creators
+blogsRouter.delete('/:id', middleware.userExtractor, async (request, response) => {
+  const user = request.user // Populated automatically via the middleware chain
 
-  // 2. Find the blog post to check ownership
+  // 1. Find the target blog post to check ownership
   const blog = await Blog.findById(request.params.id)
   if (!blog) {
     return response.status(404).json({ error: 'blog not found' })
   }
 
-  // 3. Compare the creator's ID with the token user's ID
-  // We use .toString() as instructed because blog.user is a Mongoose ObjectId object
-  if (blog.user.toString() !== decodedToken.id.toString()) {
+  // 2. Compare the creator's ID with our verified request user ID
+  if (blog.user.toString() !== user._id.toString()) {
     return response.status(403).json({ 
       error: 'permission denied: only the creator can delete this blog' 
     })
   }
 
-  // 4. Authorized: Safe to delete
+  // 3. Authorized: Safe to delete
   await Blog.findByIdAndDelete(request.params.id)
   response.status(204).end()
 })
-// Correct PUT path: Only /:id
 
+// --- PUT ROUTE ---
 blogsRouter.put('/:id', async (request, response) => {
   const { title, author, url, likes, user } = request.body
 
@@ -92,7 +75,6 @@ blogsRouter.put('/:id', async (request, response) => {
     .populate('user', { username: 1, name: 1, id: 1 })
 
   if (updatedBlog && user) {
-    // Automatically find the referenced user and append this blog ID if it isn't there already
     const userToUpdate = await User.findById(user)
     if (userToUpdate && !userToUpdate.blogs.includes(updatedBlog._id)) {
       userToUpdate.blogs = userToUpdate.blogs.concat(updatedBlog._id)
@@ -105,7 +87,5 @@ blogsRouter.put('/:id', async (request, response) => {
     response.status(404).end()
   }
 })
-
-// ... keep your DELETE and PUT routes here ...
 
 module.exports = blogsRouter;

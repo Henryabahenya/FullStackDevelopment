@@ -1,6 +1,8 @@
 const blogsRouter = require("express").Router();
 const Blog = require("../models/blog");
 const User = require("../models/user"); // Import the User model
+const jwt = require('jsonwebtoken')
+
 
 const getTokenFrom = request => {
   const authorization = request.get('authorization')
@@ -19,9 +21,6 @@ blogsRouter.get('/', async (request, response) => {
   response.json(blogs)
 })
 
-
-const jwt = require('jsonwebtoken') // Import jwt at the top
-
 blogsRouter.post('/', async (request, response) => {
   const { title, author, url, likes } = request.body
 
@@ -29,26 +28,21 @@ blogsRouter.post('/', async (request, response) => {
     return response.status(400).end()
   }
 
-  // Extract the raw token string from the request headers
-  const token = getTokenFrom(request)
+  // Look how clean! The old getTokenFrom line is completely gone.
+  // We extract the token directly from the request object populated by the middleware.
+  const decodedToken = jwt.verify(request.token, process.env.SECRET)
   
-  // Decode and verify the signature using our environmental secret
-  const decodedToken = jwt.verify(token, process.env.SECRET)
-  
-  // If the token is missing or invalid, jwt.verify throws an error handled by our middleware,
-  // but we explicitly check for the ID property here to be safe
   if (!decodedToken.id) {
     return response.status(401).json({ error: 'token invalid' })
   }
 
-  // Find the exact user bound to the token payload
   const user = await User.findById(decodedToken.id)
 
   const blog = new Blog({
     title,
     author,
     url,
-    likes,
+    likes: likes || 0, // Defaults to 0 if missing
     user: user.id
   })
 

@@ -1,35 +1,25 @@
-// models/user.js
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: true,
-    unique: true // This creates the internal index constraint we discussed earlier!
-  },
+  username: { type: String, required: true, unique: true },
   name: String,
-  passwordHash: {
-    type: String,
-    required: true
-  },
+  passwordHash: { type: String, required: true },
+  // Array of reference links to the Blog model
   blogs: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Blog'
-    }
-  ]
-})
+      ref: "Blog",
+    },
+  ],
+});
 
-userSchema.set('toJSON', {
+userSchema.set("toJSON", {
   transform: (document, returnedObject) => {
-    returnedObject.id = returnedObject._id.toString()
-    delete returnedObject._id
-    delete returnedObject.__v
-    // Crucial: never reveal the password hash over network responses!
-    delete returnedObject.passwordHash 
-  }
-})
+    returnedObject.id = returnedObject._id.toString();
+    delete returnedObject._id;
+    delete returnedObject.__v;
+    delete returnedObject.passwordHash; // Safety first!
+  },
+});
 
-const User = mongoose.model('User', userSchema)
-
-module.exports = User
+module.exports = mongoose.model("User", userSchema);

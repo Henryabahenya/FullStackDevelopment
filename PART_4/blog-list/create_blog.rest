@@ -1,24 +1,25 @@
-GET http://localhost:3003/api/blogs
-
-###
-
-POST http://localhost:3003/api/blogs
+### 1. Link "React patterns" to user "Abahenya"
+PUT http://localhost:3003/api/blogs/6a0ed326098fb0cc7fca6bac
 Content-Type: application/json
 
 {
-  "title": "Mastering Full Stack Development",
-  "author": "Henry Abahenya",
-  "url": "https://fullstackopen.com/",
-  "likes": 42
+  "title": "React patterns",
+  "author": "Michael Chan",
+  "url": "https://reactpatterns.com/",
+  "likes": 7,
+  "user": "6a1587958b1c356fbd2913fe"
 }
 
 ###
 
-POST http://localhost:3003/api/users
+### 2. Link "Go To Statement Considered Harmful" to user "Bilemanga"
+PUT http://localhost:3003/api/blogs/6a0ed327098fb0cc7fca6bad
 Content-Type: application/json
 
 {
-  "username": "Bilemanga",
-  "name": "BilemangaOg",
-  "password": "12345"
+  "title": "Go To Statement Considered Harmful",
+  "author": "Edsger W. Dijkstra",
+  "url": "https://homepages.cwi.nl/~storm/teaching/reader/Dijkstra68.pdf",
+  "likes": 5,
+  "user": "6a1587b38b1c356fbd2913ff"
 }

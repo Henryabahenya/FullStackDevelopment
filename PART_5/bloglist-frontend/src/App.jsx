@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Blog from "./components/Blog";
+import Notification from "./components/Notification";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
 
@@ -8,6 +9,7 @@ const App = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
+  const [message, setMessage] = useState(null);
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [url, setUrl] = useState("");
@@ -46,6 +48,13 @@ const App = () => {
       setPassword("");
     } catch (error) {
       console.error("login failed:", error);
+      setMessage({
+        text: "wrong username or password",
+        type: "error",
+      });
+      setTimeout(() => {
+        setMessage(null);
+      }, 5000);
     }
   };
 
@@ -64,6 +73,13 @@ const App = () => {
     });
 
     setBlogs(blogs.concat(newBlog));
+    setMessage({
+      text: `a new blog ${newBlog.title} by ${newBlog.author} added`,
+      type: "success",
+    });
+    setTimeout(() => {
+      setMessage(null);
+    }, 5000);
     setTitle("");
     setAuthor("");
     setUrl("");
@@ -73,6 +89,7 @@ const App = () => {
     // ... (Login form stays exactly the same)
     return (
       <div>
+        <Notification message={message} />
         <h2>Login</h2>
         <form onSubmit={handleLogin}>
           <div>
@@ -100,6 +117,7 @@ const App = () => {
   // Your JSX structure here perfectly matches Screenshot from 2026-07-06 13-11-59.png!
   return (
     <div>
+      <Notification message={message} />
       <h2>blogs</h2>
       <div>
         {user.name} logged in <button onClick={handleLogout}>logout</button>

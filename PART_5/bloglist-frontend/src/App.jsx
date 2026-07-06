@@ -78,7 +78,7 @@ const App = () => {
 
     setBlogs(
       blogs.map((b) =>
-        b.id === blog.id ? { ...b, likes: blog.likes + 1 } : b,
+        b.id === blog.id ? { ...b, likes: b.likes + 1, user: b.user } : b,
       ),
     );
   };

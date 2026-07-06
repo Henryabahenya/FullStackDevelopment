@@ -63,6 +63,26 @@ const App = () => {
     setUser(null);
   };
 
+  const handleLikeBlog = async (blog) => {
+    const userId = blog.user?.id || blog.user?._id || blog.user;
+
+    const updatedObject = {
+      title: blog.title,
+      author: blog.author,
+      url: blog.url,
+      likes: blog.likes + 1,
+      user: userId,
+    };
+
+    await blogService.update(blog.id, updatedObject);
+
+    setBlogs(
+      blogs.map((b) =>
+        b.id === blog.id ? { ...b, likes: blog.likes + 1 } : b,
+      ),
+    );
+  };
+
   const addBlog = async (blogObject) => {
     const newBlog = await blogService.create(blogObject);
 
@@ -122,7 +142,7 @@ const App = () => {
       </Togglable>
 
       {blogs.map((blog) => (
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} updateBlog={handleLikeBlog} />
       ))}
     </div>
   );

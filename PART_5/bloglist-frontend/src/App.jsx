@@ -13,6 +13,16 @@ const App = () => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
   }, []);
 
+  // 1. ADDED HERE: Set token when restoring user from localStorage
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser");
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON);
+      setUser(user);
+      blogService.setToken(user.token); // <--- Crucial fix!
+    }
+  }, []);
+
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
@@ -20,6 +30,14 @@ const App = () => {
         username: username,
         password: password,
       });
+      
+      // 2. ADDED HERE: Set token upon new successful login
+      blogService.setToken(loggedInUser.token); // <--- Crucial fix!
+      
+      window.localStorage.setItem(
+        "loggedBlogappUser",
+        JSON.stringify(loggedInUser),
+      );
       setUser(loggedInUser);
       setUsername("");
       setPassword("");
@@ -28,26 +46,24 @@ const App = () => {
     }
   };
 
+  const handleLogout = () => {
+    window.localStorage.removeItem("loggedBlogappUser");
+    setUser(null);
+  };
+
   if (user === null) {
+    // ... (Login form stays exactly the same)
     return (
       <div>
         <h2>Login</h2>
         <form onSubmit={handleLogin}>
           <div>
             username
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
+            <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
           </div>
           <div>
             password
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
           </div>
           <button type="submit">login</button>
         </form>
@@ -55,10 +71,13 @@ const App = () => {
     );
   }
 
+  // Your JSX structure here perfectly matches Screenshot from 2026-07-06 13-11-59.png!
   return (
     <div>
-      <h2>{user.name} logged in</h2>
       <h2>blogs</h2>
+      <div>
+        {user.name} logged in <button onClick={handleLogout}>logout</button>
+      </div>
       {blogs.map((blog) => (
         <Blog key={blog.id} blog={blog} />
       ))}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 const Blog = ({ blog, updateBlog, removeBlog, currentUser }) => {
   const [visible, setVisible] = useState(false);
@@ -6,7 +6,7 @@ const Blog = ({ blog, updateBlog, removeBlog, currentUser }) => {
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
-    border: "solid",
+    border: 'solid',
     borderWidth: 1,
     marginBottom: 5,
   };
@@ -14,28 +14,28 @@ const Blog = ({ blog, updateBlog, removeBlog, currentUser }) => {
   const canRemove =
     currentUser &&
     blog.user &&
-    typeof blog.user !== "string" &&
+    typeof blog.user !== 'string' &&
     blog.user.username === currentUser.username;
 
   return (
     <div style={blogStyle}>
       <div>
-        {blog.title} {blog.author}{" "}
+        {blog.title} {blog.author}{' '}
         <button onClick={() => setVisible(!visible)}>
-          {visible ? "hide" : "view"}
+          {visible ? 'hide' : 'view'}
         </button>
       </div>
       {visible && (
         <div>
           <div>{blog.url}</div>
           <div>
-            likes {blog.likes}{" "}
+            likes {blog.likes}{' '}
             <button onClick={() => updateBlog(blog)}>like</button>
           </div>
           <div>{blog.user?.name || blog.user}</div>
           {canRemove && (
             <button
-              style={{ backgroundColor: "blue", color: "white", marginTop: 5 }}
+              style={{ backgroundColor: 'blue', color: 'white', marginTop: 5 }}
               onClick={() => removeBlog(blog)}
             >
               remove

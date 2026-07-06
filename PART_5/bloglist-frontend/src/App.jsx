@@ -1,15 +1,15 @@
-import { useState, useEffect, useRef } from "react";
-import Blog from "./components/Blog";
-import BlogForm from "./components/BlogForm";
-import Notification from "./components/Notification";
-import Togglable from "./components/Togglable";
-import blogService from "./services/blogs";
-import loginService from "./services/login";
+import { useState, useEffect, useRef } from 'react';
+import Blog from './components/Blog';
+import BlogForm from './components/BlogForm';
+import Notification from './components/Notification';
+import Togglable from './components/Togglable';
+import blogService from './services/blogs';
+import loginService from './services/login';
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [user, setUser] = useState(null);
   const [message, setMessage] = useState(null);
   const blogFormRef = useRef();
@@ -20,7 +20,7 @@ const App = () => {
 
   // 1. ADDED HERE: Set token when restoring user from localStorage
   useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser");
+    const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser');
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON);
       setUser(user);
@@ -40,17 +40,17 @@ const App = () => {
       blogService.setToken(loggedInUser.token); // <--- Crucial fix!
 
       window.localStorage.setItem(
-        "loggedBlogappUser",
+        'loggedBlogappUser',
         JSON.stringify(loggedInUser),
       );
       setUser(loggedInUser);
-      setUsername("");
-      setPassword("");
+      setUsername('');
+      setPassword('');
     } catch (error) {
-      console.error("login failed:", error);
+      console.error('login failed:', error);
       setMessage({
-        text: "wrong username or password",
-        type: "error",
+        text: 'wrong username or password',
+        type: 'error',
       });
       setTimeout(() => {
         setMessage(null);
@@ -59,7 +59,7 @@ const App = () => {
   };
 
   const handleLogout = () => {
-    window.localStorage.removeItem("loggedBlogappUser");
+    window.localStorage.removeItem('loggedBlogappUser');
     setUser(null);
   };
 
@@ -102,7 +102,7 @@ const App = () => {
     setBlogs(blogs.concat(newBlog));
     setMessage({
       text: `a new blog ${newBlog.title} by ${newBlog.author} added`,
-      type: "success",
+      type: 'success',
     });
     setTimeout(() => {
       setMessage(null);

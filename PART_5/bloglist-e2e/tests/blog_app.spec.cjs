@@ -44,5 +44,29 @@ describe("Blog app", () => {
         .toBeHidden({ timeout: 100 })
         .catch(() => {});
     });
+
+    describe("When logged in", () => {
+      beforeEach(async ({ page }) => {
+        await page.locator('input[type="text"]').fill("testuser");
+        await page.locator('input[type="password"]').fill("password123");
+        await page.getByRole("button", { name: /login/i }).click();
+        await expect(page.getByText(/Test User logged in/i)).toBeVisible();
+      });
+
+      test("a new blog can be created", async ({ page }) => {
+        await page.getByRole("button", { name: /create new blog/i }).click();
+
+        await page.locator("#title").fill("E2E Testing with Playwright");
+        await page.locator("#author").fill("Test Author");
+        await page.locator("#url").fill("http://testurl.com");
+
+        await page.getByRole("button", { name: /create/i }).click();
+
+        await expect(
+          page.getByText(/E2E Testing with Playwright/i).first(),
+        ).toBeVisible();
+        await expect(page.getByText(/Test Author/i).first()).toBeVisible();
+      });
+    });
   });
 });

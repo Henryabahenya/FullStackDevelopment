@@ -128,6 +128,91 @@ describe("Blog app", () => {
       );
     });
 
+    test("blogs are arranged in the order of most likes first", async ({
+      page,
+      request,
+    }) => {
+      const loginResponse = await request.post(
+        "http://localhost:3003/api/login",
+        {
+          data: {
+            username: "testuser",
+            password: "password123",
+          },
+        },
+      );
+      const loginData = await loginResponse.json();
+      const token = loginData.token;
+
+      const createBlog = async (title, author, url, likes = 0) => {
+        await request.post("http://localhost:3003/api/blogs", {
+          data: { title, author, url, likes },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      };
+
+      await createBlog(
+        "Blog with zero likes",
+        "Test Author",
+        "http://zero.com",
+        0,
+      );
+      await createBlog(
+        "Blog with three likes",
+        "Test Author",
+        "http://three.com",
+        3,
+      );
+      await createBlog(
+        "Blog with one like",
+        "Test Author",
+        "http://one.com",
+        1,
+      );
+
+      await page.goto("http://localhost:5173");
+      await expect(page.getByText(/Blog with zero likes/i).first()).toBeVisible(
+        {
+          timeout: 10000,
+        },
+      );
+
+      const titleDivs = page.locator(
+        'xpath=//div[div[starts-with(normalize-space(.), "Blog with three likes Test Author")] or div[starts-with(normalize-space(.), "Blog with one like Test Author")] or div[starts-with(normalize-space(.), "Blog with zero likes Test Author")]]',
+      );
+      const orderedTitles = [];
+      const titleCount = await titleDivs.count();
+      for (let i = 0; i < titleCount; i += 1) {
+        const text = await titleDivs.nth(i).textContent();
+        if (!text) continue;
+
+        if (
+          text.includes("Blog with three likes") &&
+          !orderedTitles.includes("Blog with three likes")
+        ) {
+          orderedTitles.push("Blog with three likes");
+        } else if (
+          text.includes("Blog with one like") &&
+          !orderedTitles.includes("Blog with one like")
+        ) {
+          orderedTitles.push("Blog with one like");
+        } else if (
+          text.includes("Blog with zero likes") &&
+          !orderedTitles.includes("Blog with zero likes")
+        ) {
+          orderedTitles.push("Blog with zero likes");
+        }
+      }
+
+      expect(orderedTitles).toEqual([
+        "Blog with three likes",
+        "Blog with one like",
+        "Blog with zero likes",
+      ]);
+    });
+
     test("only the user who created the blog sees the delete button", async ({
       page,
       request,

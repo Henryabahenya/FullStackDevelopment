@@ -1,10 +1,8 @@
-const { test, expect, beforeEach, describe } = require("@playwright/test");
+const { test, expect, describe, beforeEach } = require("@playwright/test");
 
 describe("Blog app", () => {
   beforeEach(async ({ page, request }) => {
-    // Empty the DB
     await request.post("http://localhost:3003/api/testing/reset");
-    // Create a backend user
     await request.post("http://localhost:3003/api/users", {
       data: {
         name: "Test User",
@@ -12,14 +10,13 @@ describe("Blog app", () => {
         password: "password123",
       },
     });
-
     await page.goto("http://localhost:5173");
   });
 
   test("Login form is shown", async ({ page }) => {
     await expect(page.getByText(/log\s*in/i).first()).toBeVisible();
     await expect(page.locator('input[type="text"]').first()).toBeVisible();
-    await expect(page.locator('input[type="password"]')).toBeVisible();
+    await expect(page.locator('input[type="password"]').first()).toBeVisible();
     await expect(page.getByRole("button", { name: /login/i })).toBeVisible();
   });
 
@@ -28,7 +25,6 @@ describe("Blog app", () => {
       await page.locator('input[type="text"]').first().fill("testuser");
       await page.locator('input[type="password"]').fill("password123");
       await page.getByRole("button", { name: /login/i }).click();
-
       await expect(page.getByText(/logged in/i).first()).toBeVisible();
     });
 
@@ -36,7 +32,6 @@ describe("Blog app", () => {
       await page.locator('input[type="text"]').first().fill("testuser");
       await page.locator('input[type="password"]').fill("wrongpass");
       await page.getByRole("button", { name: /login/i }).click();
-
       await expect(page.getByText(/wrong|invalid/i).first()).toBeVisible();
     });
   });
@@ -46,7 +41,6 @@ describe("Blog app", () => {
       await page.locator('input[type="text"]').first().fill("testuser");
       await page.locator('input[type="password"]').fill("password123");
       await page.getByRole("button", { name: /login/i }).click();
-      // Ensure the UI reflects the login state before proceeding
       await expect(page.getByText(/logged in/i).first()).toBeVisible();
     });
 
@@ -55,11 +49,7 @@ describe("Blog app", () => {
         .getByRole("button", { name: /new blog|create|add/i })
         .first()
         .click();
-
-      // FIX: Use sequential index or placeholders to safely target inputs
       const inputs = page.locator('input[type="text"]');
-
-      // If your page has multiple inputs, let's look for matching placeholders first, falling back to layout index
       if (
         await page
           .getByPlaceholder("title")
@@ -72,17 +62,14 @@ describe("Blog app", () => {
         await page.getByPlaceholder("author").fill("Test Author");
         await page.getByPlaceholder("url").fill("http://testurl.com");
       } else {
-        // Fallback: Fill inputs in order of appearance within the creation form area
-        await inputs.nth(0).fill("E2E Testing with Playwright"); // title field
-        await inputs.nth(1).fill("Test Author"); // author field
-        await inputs.nth(2).fill("http://testurl.com"); // url field
+        await inputs.nth(0).fill("E2E Testing with Playwright");
+        await inputs.nth(1).fill("Test Author");
+        await inputs.nth(2).fill("http://testurl.com");
       }
-
       await page
         .getByRole("button", { name: /create|submit/i })
         .first()
         .click();
-
       await expect(
         page.getByText(/E2E Testing with Playwright/i).first(),
       ).toBeVisible();
@@ -93,7 +80,6 @@ describe("Blog app", () => {
         .getByRole("button", { name: /new blog|create|add/i })
         .first()
         .click();
-
       const inputs = page.locator('input[type="text"]');
       if (
         await page
@@ -109,42 +95,97 @@ describe("Blog app", () => {
         await inputs.nth(1).fill("Test Author");
         await inputs.nth(2).fill("http://testurl.com");
       }
-
       await page
         .getByRole("button", { name: /create|submit/i })
         .first()
         .click();
 
-      // Find the specific blog's view button by scanning all view buttons
-      const title = "Liking E2E Post";
-      // Alternative: find the title node(s) and locate the nearest ancestor blog container that has a view button
-      const titles = page.getByText(title);
-      const tCount = await titles.count();
-      let liked = false;
-      for (let i = 0; i < tCount; i++) {
-        const t = titles.nth(i);
-        // find an ancestor div that contains a view button
-        const container = t
-          .locator("xpath=ancestor::div[.//button[contains(., 'view')]]")
-          .first();
-        if ((await container.count()) === 0) continue;
-        // click view within that container
-        await container.getByRole("button", { name: /view/i }).first().click();
-        // find like button inside the same container
-        const likeBtn = container
-          .getByRole("button", { name: /like/i })
-          .first();
-        try {
-          await likeBtn.waitFor({ state: "visible", timeout: 10000 });
-          await likeBtn.click();
-          await expect(container).toContainText("1");
-          liked = true;
-          break;
-        } catch (e) {
-          // try next match
-        }
+      // Use the same scoped filter approach as the delete test
+      const blogElement = page
+        .locator("div")
+        .filter({ hasText: /^Liking E2E Post/ })
+        .first();
+
+      // Expand details
+      await blogElement.getByRole("button", { name: /view/i }).click();
+
+      // Get initial like count
+      const likesText = await blogElement
+        .getByText(/likes/)
+        .first()
+        .textContent();
+      const initialLikes = parseInt(likesText.match(/\d+/)[0], 10);
+
+      // Click like button
+      const likeBtn = blogElement
+        .getByRole("button", { name: /like/i })
+        .first();
+      await likeBtn.waitFor({ state: "visible", timeout: 10000 });
+      await likeBtn.click();
+
+      // Verify the like count increased by 1
+      await expect(
+        blogElement.getByText(new RegExp(`likes ${initialLikes + 1}`)),
+      ).toBeVisible();
+    });
+
+    test("a blog can be deleted by the user who created it", async ({
+      page,
+    }) => {
+      // 1. Create a blog specifically for deletion
+      await page
+        .getByRole("button", { name: /new blog|create|add/i })
+        .first()
+        .click();
+
+      const inputs = page.locator('input[type="text"]');
+      if (
+        await page
+          .getByPlaceholder("title")
+          .isVisible()
+          .catch(() => false)
+      ) {
+        await page.getByPlaceholder("title").fill("Blog to be deleted");
+        await page.getByPlaceholder("author").fill("Delete Author");
+        await page.getByPlaceholder("url").fill("http://deleteurl.com");
+      } else {
+        await inputs.nth(0).fill("Blog to be deleted");
+        await inputs.nth(1).fill("Delete Author");
+        await inputs.nth(2).fill("http://deleteurl.com");
       }
-      if (!liked) throw new Error('Could not like the blog "' + title + '"');
+      await page
+        .getByRole("button", { name: /create|submit/i })
+        .first()
+        .click();
+
+      // 2. Ensure it is rendered on screen
+      const blogTitle = page.getByText("Blog to be deleted").first();
+      await expect(blogTitle).toBeVisible();
+
+      // 3. Setup the dialog listener BEFORE clicking delete to automatically accept window.confirm
+      page.on("dialog", async (dialog) => {
+        await dialog.accept();
+      });
+
+      // 4. Find the specific container for this blog to avoid strict mode issues
+      const blogElement = page
+        .locator("div")
+        .filter({ hasText: /^Blog to be deleted/ })
+        .first();
+
+      // 5. Expand details
+      await blogElement.getByRole("button", { name: /view/i }).click();
+
+      // 6. Find and click the delete/remove button inside this blog container
+      const deleteButton = blogElement
+        .locator("button")
+        .filter({ hasText: /delete|remove|remove/i })
+        .first();
+      await expect(deleteButton).toBeVisible();
+      await deleteButton.click();
+
+      // 7. Verify that the blog is no longer present on the page
+      await expect(page.getByText(/^Blog to be deleted$/)).toHaveCount(0);
     });
   });
 });

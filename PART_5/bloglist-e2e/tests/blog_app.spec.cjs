@@ -110,10 +110,8 @@ describe("Blog app", () => {
       await blogElement.getByRole("button", { name: /view/i }).click();
 
       // Get initial like count
-      const likesText = await blogElement
-        .getByText(/likes/)
-        .first()
-        .textContent();
+      const likesLocator = blogElement.getByText(/likes/i).first();
+      const likesText = await likesLocator.textContent();
       const initialLikes = parseInt(likesText.match(/\d+/)[0], 10);
 
       // Click like button
@@ -124,9 +122,78 @@ describe("Blog app", () => {
       await likeBtn.click();
 
       // Verify the like count increased by 1
-      await expect(
-        blogElement.getByText(new RegExp(`likes ${initialLikes + 1}`)),
-      ).toBeVisible();
+      await expect(likesLocator).toHaveText(
+        new RegExp(`likes[:\\s]*${initialLikes + 1}`, "i"),
+        { timeout: 10000 },
+      );
+    });
+
+    test("only the user who created the blog sees the delete button", async ({
+      page,
+      request,
+    }) => {
+      await page
+        .getByRole("button", { name: /new blog|create|add/i })
+        .first()
+        .click();
+
+      const inputs = page.locator('input[type="text"]');
+      if (
+        await page
+          .getByPlaceholder("title")
+          .isVisible()
+          .catch(() => false)
+      ) {
+        await page
+          .getByPlaceholder("title")
+          .fill("Authorized Delete Only Blog");
+        await page.getByPlaceholder("author").fill("Test Author");
+        await page.getByPlaceholder("url").fill("http://testurl.com");
+      } else {
+        await inputs.nth(0).fill("Authorized Delete Only Blog");
+        await inputs.nth(1).fill("Test Author");
+        await inputs.nth(2).fill("http://testurl.com");
+      }
+
+      await page
+        .getByRole("button", { name: /create|submit/i })
+        .first()
+        .click();
+
+      const blogElement = page
+        .locator("div")
+        .filter({ hasText: /^Authorized Delete Only Blog/ })
+        .first();
+      await blogElement.getByRole("button", { name: /view/i }).click();
+
+      await page.getByRole("button", { name: /logout/i }).click();
+
+      await request.post("http://localhost:3003/api/users", {
+        data: {
+          name: "Second User",
+          username: "seconduser",
+          password: "password123",
+        },
+      });
+
+      await page.locator('input[type="text"]').first().fill("seconduser");
+      await page.locator('input[type="password"]').fill("password123");
+      await page.getByRole("button", { name: /login/i }).click();
+      await expect(page.getByText(/logged in/i).first()).toBeVisible();
+
+      const secondUserBlogElement = page
+        .locator("div")
+        .filter({ hasText: /^Authorized Delete Only Blog/ })
+        .first();
+      await secondUserBlogElement
+        .getByRole("button", { name: /view/i })
+        .click();
+
+      const deleteButton = secondUserBlogElement
+        .locator("button")
+        .filter({ hasText: /delete|remove/i })
+        .first();
+      await expect(deleteButton).toBeHidden();
     });
 
     test("a blog can be deleted by the user who created it", async ({

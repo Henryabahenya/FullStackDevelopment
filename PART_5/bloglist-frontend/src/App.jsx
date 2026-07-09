@@ -1,9 +1,15 @@
-import { useState, useEffect, useRef } from "react";
-import { Routes, Route, Link, useNavigate, useParams } from "react-router-dom";
+import { useState, useEffect } from "react";
+import {
+  Routes,
+  Route,
+  Link,
+  useNavigate,
+  useParams,
+  Navigate,
+} from "react-router-dom";
 import Blog from "./components/Blog";
 import BlogForm from "./components/BlogForm";
 import Notification from "./components/Notification";
-import Togglable from "./components/Togglable";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
 
@@ -50,7 +56,6 @@ const App = () => {
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
   const [message, setMessage] = useState(null);
-  const blogFormRef = useRef();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -141,9 +146,7 @@ const App = () => {
     setTimeout(() => {
       setMessage(null);
     }, 5000);
-    if (blogFormRef.current) {
-      blogFormRef.current.toggleVisibility();
-    }
+    navigate("/");
   };
 
   const navStyle = {
@@ -158,6 +161,11 @@ const App = () => {
         <Link style={{ padding: 5 }} to="/">
           blogs
         </Link>
+        {user && (
+          <Link style={{ padding: 5 }} to="/create">
+            new blog
+          </Link>
+        )}
         {user ? (
           <span>
             <em>{user.name} logged in</em>{" "}
@@ -213,15 +221,15 @@ const App = () => {
           }
         />
         <Route
+          path="/create"
+          element={
+            user ? <BlogForm createBlog={addBlog} /> : <Navigate to="/login" />
+          }
+        />
+        <Route
           path="/"
           element={
             <div>
-              {user && (
-                <Togglable buttonLabel="create new blog" ref={blogFormRef}>
-                  <BlogForm createBlog={addBlog} />
-                </Togglable>
-              )}
-
               <ul>
                 {[...blogs]
                   .sort((a, b) => b.likes - a.likes)

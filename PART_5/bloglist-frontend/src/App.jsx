@@ -1,11 +1,48 @@
 import { useState, useEffect, useRef } from "react";
-import { Routes, Route, Link, useNavigate } from "react-router-dom";
+import { Routes, Route, Link, useNavigate, useParams } from "react-router-dom";
 import Blog from "./components/Blog";
 import BlogForm from "./components/BlogForm";
 import Notification from "./components/Notification";
 import Togglable from "./components/Togglable";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
+
+const BlogView = ({ blogs, user, handleLikeBlog, handleDeleteBlog }) => {
+  const { id } = useParams();
+  const blog = blogs.find((b) => b.id === id || b.id?.toString() === id);
+
+  if (!blog) {
+    return <div>Blog not found</div>;
+  }
+
+  const createdBy = blog.user?.name || blog.user;
+  const isOwner =
+    user &&
+    (blog.user?.username === user.username ||
+      blog.user === user.id ||
+      blog.user === user._id);
+
+  return (
+    <div>
+      <h2>
+        {blog.title} by {blog.author}
+      </h2>
+      <div>
+        <a href={blog.url} target="_blank" rel="noopener noreferrer">
+          {blog.url}
+        </a>
+      </div>
+      <div>
+        likes {blog.likes}{" "}
+        {user && <button onClick={() => handleLikeBlog(blog)}>like</button>}
+      </div>
+      <div>added by {createdBy}</div>
+      {isOwner && (
+        <button onClick={() => handleDeleteBlog(blog)}>remove</button>
+      )}
+    </div>
+  );
+};
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
@@ -91,6 +128,7 @@ const App = () => {
     }
     await blogService.remove(blog.id);
     setBlogs(blogs.filter((b) => b.id !== blog.id));
+    navigate("/");
   };
 
   const addBlog = async (blogObject) => {
@@ -164,6 +202,17 @@ const App = () => {
           }
         />
         <Route
+          path="/blogs/:id"
+          element={
+            <BlogView
+              blogs={blogs}
+              user={user}
+              handleLikeBlog={handleLikeBlog}
+              handleDeleteBlog={handleDeleteBlog}
+            />
+          }
+        />
+        <Route
           path="/"
           element={
             <div>
@@ -173,17 +222,17 @@ const App = () => {
                 </Togglable>
               )}
 
-              {[...blogs]
-                .sort((a, b) => b.likes - a.likes)
-                .map((blog) => (
-                  <Blog
-                    key={blog.id}
-                    blog={blog}
-                    updateBlog={handleLikeBlog}
-                    removeBlog={handleDeleteBlog}
-                    currentUser={user}
-                  />
-                ))}
+              <ul>
+                {[...blogs]
+                  .sort((a, b) => b.likes - a.likes)
+                  .map((blog) => (
+                    <li key={blog.id}>
+                      <Link to={`/blogs/${blog.id}`}>
+                        {blog.title} by {blog.author}
+                      </Link>
+                    </li>
+                  ))}
+              </ul>
             </div>
           }
         />

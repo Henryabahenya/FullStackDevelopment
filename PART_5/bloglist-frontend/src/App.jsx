@@ -12,6 +12,8 @@ import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
 import Blog from "./components/Blog";
 import BlogForm from "./components/BlogForm";
 import Notification from "./components/Notification";
@@ -34,24 +36,54 @@ const BlogView = ({ blogs, user, handleLikeBlog, handleDeleteBlog }) => {
       blog.user === user._id);
 
   return (
-    <div>
-      <h2>
-        {blog.title} by {blog.author}
-      </h2>
-      <div>
-        <a href={blog.url} target="_blank" rel="noopener noreferrer">
+    <Card sx={{ maxWidth: 800, margin: "auto", mt: 4, boxShadow: 4 }}>
+      <CardContent>
+        <Typography variant="h4" component="h2" gutterBottom>
+          {blog.title}
+        </Typography>
+        <Typography variant="subtitle1" color="text.secondary" gutterBottom>
+          by {blog.author}
+        </Typography>
+        <Typography
+          variant="body1"
+          component="a"
+          href={blog.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          sx={{
+            display: "block",
+            mt: 1,
+            color: "primary.main",
+            textDecoration: "none",
+          }}
+        >
           {blog.url}
-        </a>
-      </div>
-      <div>
-        likes {blog.likes}{" "}
-        {user && <button onClick={() => handleLikeBlog(blog)}>like</button>}
-      </div>
-      <div>added by {createdBy}</div>
-      {isOwner && (
-        <button onClick={() => handleDeleteBlog(blog)}>remove</button>
-      )}
-    </div>
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+          Added by {createdBy}
+        </Typography>
+
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mt: 3 }}>
+          <Typography variant="body1">likes {blog.likes}</Typography>
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={() => handleLikeBlog(blog)}
+          >
+            LIKE
+          </Button>
+          {isOwner && (
+            <Button
+              variant="outlined"
+              color="error"
+              onClick={() => handleDeleteBlog(blog)}
+            >
+              REMOVE
+            </Button>
+          )}
+        </Box>
+      </CardContent>
+    </Card>
   );
 };
 

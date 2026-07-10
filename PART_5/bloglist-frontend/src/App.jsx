@@ -7,6 +7,11 @@ import {
   useParams,
   Navigate,
 } from "react-router-dom";
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button";
 import Blog from "./components/Blog";
 import BlogForm from "./components/BlogForm";
 import Notification from "./components/Notification";
@@ -149,34 +154,34 @@ const App = () => {
     navigate("/");
   };
 
-  const navStyle = {
-    padding: 5,
-    backgroundColor: "#e0e0e0",
-    marginBottom: 10,
-  };
-
   return (
     <div>
-      <div style={navStyle}>
-        <Link style={{ padding: 5 }} to="/">
-          blogs
-        </Link>
-        {user && (
-          <Link style={{ padding: 5 }} to="/create">
-            new blog
-          </Link>
-        )}
-        {user ? (
-          <span>
-            <em>{user.name} logged in</em>{" "}
-            <button onClick={handleLogout}>logout</button>
-          </span>
-        ) : (
-          <Link style={{ padding: 5 }} to="/login">
-            login
-          </Link>
-        )}
-      </div>
+      <Box sx={{ flexGrow: 1, marginBottom: 2 }}>
+        <AppBar position="static">
+          <Toolbar>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+              Blog App
+            </Typography>
+            <Button color="inherit" component={Link} to="/">
+              Blogs
+            </Button>
+            {user && (
+              <Button color="inherit" component={Link} to="/create">
+                New Blog
+              </Button>
+            )}
+            {user ? (
+              <Button color="inherit" onClick={handleLogout}>
+                Logout
+              </Button>
+            ) : (
+              <Button color="inherit" component={Link} to="/login">
+                Login
+              </Button>
+            )}
+          </Toolbar>
+        </AppBar>
+      </Box>
 
       <Notification message={message} />
       <h2>blog app</h2>

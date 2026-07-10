@@ -185,26 +185,30 @@ const App = () => {
         <Route
           path="/login"
           element={
-            <div>
-              <h2>Login</h2>
-              <form onSubmit={handleLogin}>
-                <div>
-                  username
+            <div className="form-card">
+              <h2 className="form-title">Login</h2>
+              <form onSubmit={handleLogin} className="stack">
+                <div className="form-field">
                   <input
                     type="text"
+                    className="text-input"
+                    placeholder="username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                   />
                 </div>
-                <div>
-                  password
+                <div className="form-field">
                   <input
                     type="password"
+                    className="text-input"
+                    placeholder="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                   />
                 </div>
-                <button type="submit">login</button>
+                <button type="submit" className="btn-primary">
+                  LOGIN
+                </button>
               </form>
             </div>
           }

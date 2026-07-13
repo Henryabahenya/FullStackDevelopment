@@ -8,7 +8,7 @@ const AnecdoteList = () => {
     voteAnecdote(id);
   };
 
-  const sortedAnecdotes = [...anecdotes].sort((a, b) => b.votes - a.votes);
+  const sortedAnecdotes = anecdotes.toSorted((a, b) => b.votes - a.votes);
 
   return (
     <div>

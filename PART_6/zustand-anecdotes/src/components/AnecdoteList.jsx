@@ -1,9 +1,16 @@
 import { useAnecdotes, useVoteAnecdote, useFilter } from "../store";
+import useNotificationStore from "../notificationStore";
 
 const AnecdoteList = () => {
   const anecdotes = useAnecdotes();
   const voteAnecdote = useVoteAnecdote();
   const filter = useFilter();
+  const setNotification = useNotificationStore(
+    (state) => state.setNotification,
+  );
+  const clearNotification = useNotificationStore(
+    (state) => state.clearNotification,
+  );
 
   const vote = async (id) => {
     const anecdote = anecdotes.find((a) => a.id === id);
@@ -23,6 +30,10 @@ const AnecdoteList = () => {
 
     const savedAnecdote = await response.json();
     voteAnecdote(savedAnecdote);
+    setNotification(`You voted '${savedAnecdote.content}'`);
+    setTimeout(() => {
+      clearNotification();
+    }, 5000);
   };
 
   const filteredAnecdotes = anecdotes.filter((a) =>

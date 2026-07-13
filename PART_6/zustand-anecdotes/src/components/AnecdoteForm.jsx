@@ -1,7 +1,14 @@
 import { useCreateAnecdote } from "../store";
+import useNotificationStore from "../notificationStore";
 
 const AnecdoteForm = () => {
   const createAnecdote = useCreateAnecdote();
+  const setNotification = useNotificationStore(
+    (state) => state.setNotification,
+  );
+  const clearNotification = useNotificationStore(
+    (state) => state.clearNotification,
+  );
 
   const handleCreateAnecdote = async (event) => {
     event.preventDefault();
@@ -20,6 +27,10 @@ const AnecdoteForm = () => {
 
     const savedAnecdote = await response.json();
     createAnecdote(savedAnecdote);
+    setNotification(`You created '${savedAnecdote.content}'`);
+    setTimeout(() => {
+      clearNotification();
+    }, 5000);
     event.target.anecdote.value = "";
   };
 

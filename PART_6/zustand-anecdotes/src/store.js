@@ -3,12 +3,10 @@ import { create } from "zustand";
 const useAnecdoteStore = create((set) => ({
   anecdotes: [],
   filter: "",
-  voteAnecdote: (id) =>
+  voteAnecdote: (updatedAnecdote) =>
     set((state) => ({
       anecdotes: state.anecdotes.map((anecdote) =>
-        anecdote.id === id
-          ? { ...anecdote, votes: anecdote.votes + 1 }
-          : anecdote,
+        anecdote.id === updatedAnecdote.id ? updatedAnecdote : anecdote,
       ),
     })),
   createAnecdote: (anecdote) =>

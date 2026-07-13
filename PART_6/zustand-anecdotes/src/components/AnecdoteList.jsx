@@ -5,8 +5,24 @@ const AnecdoteList = () => {
   const voteAnecdote = useVoteAnecdote();
   const filter = useFilter();
 
-  const vote = (id) => {
-    voteAnecdote(id);
+  const vote = async (id) => {
+    const anecdote = anecdotes.find((a) => a.id === id);
+    if (!anecdote) {
+      return;
+    }
+
+    const updatedAnecdote = { ...anecdote, votes: anecdote.votes + 1 };
+
+    const response = await fetch(`http://localhost:3001/anecdotes/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedAnecdote),
+    });
+
+    const savedAnecdote = await response.json();
+    voteAnecdote(savedAnecdote);
   };
 
   const filteredAnecdotes = anecdotes.filter((a) =>

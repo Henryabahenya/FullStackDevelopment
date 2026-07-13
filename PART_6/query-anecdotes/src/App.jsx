@@ -1,19 +1,18 @@
 import { useQuery } from '@tanstack/react-query'
 import { getAnecdotes } from './requests'
+import AnecdoteForm from './components/AnecdoteForm'
 
 const App = () => {
   const result = useQuery({
     queryKey: ['anecdotes'],
     queryFn: getAnecdotes,
-    retry: 1 // Only retry once before showing the error overlay
+    retry: 1
   })
 
-  // 1. Handle loading state while fetching from backend
   if (result.isPending) {
     return <div>loading data...</div>
   }
 
-  // 2. Handle communication failure/server downtime gracefully
   if (result.isError) {
     return <div>anecdote service not available due to problems in server</div>
   }
@@ -27,6 +26,8 @@ const App = () => {
   return (
     <div>
       <h3>Anecdote app</h3>
+    
+      <AnecdoteForm />
     
       <div>
         {anecdotes.map(anecdote =>

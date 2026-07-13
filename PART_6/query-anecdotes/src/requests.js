@@ -19,3 +19,16 @@ export const createNewAnecdote = (newAnecdote) =>
       }
       return res.json()
     })
+
+export const updateAnecdote = (updatedAnecdote) =>
+  fetch(`http://localhost:3001/anecdotes/${updatedAnecdote.id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(updatedAnecdote)
+  })
+    .then(res => {
+      if (!res.ok) {
+        throw new Error('Failed to update anecdote votes')
+      }
+      return res.json()
+    })

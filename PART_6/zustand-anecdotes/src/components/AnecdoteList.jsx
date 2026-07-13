@@ -1,9 +1,15 @@
-import { useAnecdotes, useVoteAnecdote, useFilter } from "../store";
+import {
+  useAnecdotes,
+  useVoteAnecdote,
+  useFilter,
+  useRemoveAnecdote,
+} from "../store";
 import useNotificationStore from "../notificationStore";
 
 const AnecdoteList = () => {
   const anecdotes = useAnecdotes();
   const voteAnecdote = useVoteAnecdote();
+  const removeAnecdote = useRemoveAnecdote();
   const filter = useFilter();
   const setNotification = useNotificationStore(
     (state) => state.setNotification,
@@ -36,6 +42,18 @@ const AnecdoteList = () => {
     }, 5000);
   };
 
+  const handleDelete = async (anecdote) => {
+    await fetch(`http://localhost:3001/anecdotes/${anecdote.id}`, {
+      method: "DELETE",
+    });
+
+    removeAnecdote(anecdote.id);
+    setNotification(`You deleted '${anecdote.content}'`);
+    setTimeout(() => {
+      clearNotification();
+    }, 5000);
+  };
+
   const filteredAnecdotes = anecdotes.filter((a) =>
     a.content.toLowerCase().includes(filter.toLowerCase()),
   );
@@ -52,6 +70,9 @@ const AnecdoteList = () => {
           <div>
             has {anecdote.votes}
             <button onClick={() => vote(anecdote.id)}>vote</button>
+            {anecdote.votes === 0 && (
+              <button onClick={() => handleDelete(anecdote)}>delete</button>
+            )}
           </div>
         </div>
       ))}

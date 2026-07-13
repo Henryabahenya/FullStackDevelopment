@@ -13,6 +13,10 @@ const useAnecdoteStore = create((set) => ({
     set((state) => ({
       anecdotes: state.anecdotes.concat(anecdote),
     })),
+  removeAnecdote: (id) =>
+    set((state) => ({
+      anecdotes: state.anecdotes.filter((anecdote) => anecdote.id !== id),
+    })),
   setAnecdotes: (anecdotes) =>
     set(() => ({
       anecdotes,
@@ -30,6 +34,9 @@ export const useVoteAnecdote = () =>
 
 export const useCreateAnecdote = () =>
   useAnecdoteStore((state) => state.createAnecdote);
+
+export const useRemoveAnecdote = () =>
+  useAnecdoteStore((state) => state.removeAnecdote);
 
 export const useSetAnecdotes = () =>
   useAnecdoteStore((state) => state.setAnecdotes);

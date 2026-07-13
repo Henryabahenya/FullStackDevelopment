@@ -1,11 +1,21 @@
-import { useAnecdotes, useVoteAnecdote } from "./store";
+import { useAnecdotes, useVoteAnecdote, useCreateAnecdote } from "./store";
 
 const App = () => {
   const anecdotes = useAnecdotes();
   const voteAnecdote = useVoteAnecdote();
+  const createAnecdote = useCreateAnecdote();
 
   const vote = (id) => {
     voteAnecdote(id);
+  };
+
+  const handleCreateAnecdote = (event) => {
+    event.preventDefault();
+    const content = event.target.anecdote.value;
+    if (content.trim()) {
+      createAnecdote(content);
+      event.target.anecdote.value = "";
+    }
   };
 
   const sortedAnecdotes = [...anecdotes].sort((a, b) => b.votes - a.votes);
@@ -23,11 +33,11 @@ const App = () => {
         </div>
       ))}
       <h2>create new</h2>
-      <form>
+      <form onSubmit={handleCreateAnecdote}>
         <div>
-          <input />
+          <input name="anecdote" />
         </div>
-        <button>create</button>
+        <button type="submit">create</button>
       </form>
     </div>
   );

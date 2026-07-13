@@ -28,9 +28,16 @@ const useAnecdoteStore = create((set) => ({
           : anecdote,
       ),
     })),
+  createAnecdote: (content) =>
+    set((state) => ({
+      anecdotes: state.anecdotes.concat(asObject(content)),
+    })),
 }));
 
 export const useAnecdotes = () => useAnecdoteStore((state) => state.anecdotes);
 
 export const useVoteAnecdote = () =>
   useAnecdoteStore((state) => state.voteAnecdote);
+
+export const useCreateAnecdote = () =>
+  useAnecdoteStore((state) => state.createAnecdote);

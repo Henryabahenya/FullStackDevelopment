@@ -1,49 +1,44 @@
-import React, { createContext, useReducer, useContext } from "react";
-
-const NotificationStateContext = createContext();
-const NotificationDispatchContext = createContext();
+import { createContext, useReducer, useContext } from 'react'
 
 const notificationReducer = (state, action) => {
   switch (action.type) {
-    case "SET_NOTIFICATION":
-      return action.payload;
-    case "CLEAR_NOTIFICATION":
-      return "";
+    case 'SET_NOTIFICATION':
+      return action.payload
+    case 'CLEAR_NOTIFICATION':
+      return null
     default:
-      return state;
+      return state
   }
-};
+}
 
-export const NotificationContextProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(notificationReducer, "");
+const NotificationContext = createContext()
+
+export const NotificationContextProvider = (props) => {
+  const [notification, notificationDispatch] = useReducer(notificationReducer, null)
 
   return (
-    <NotificationStateContext.Provider value={state}>
-      <NotificationDispatchContext.Provider value={dispatch}>
-        {children}
-      </NotificationDispatchContext.Provider>
-    </NotificationStateContext.Provider>
-  );
-};
+    <NotificationContext.Provider value={[notification, notificationDispatch]}>
+      {props.children}
+    </NotificationContext.Provider>
+  )
+}
 
 export const useNotificationValue = () => {
-  const context = useContext(NotificationStateContext);
-  if (context === undefined) {
-    throw new Error(
-      "useNotificationValue must be used within NotificationContextProvider",
-    );
-  }
-  return context;
-};
+  const context = useContext(NotificationContext)
+  return context[0]
+}
 
-export const useNotificationDispatch = () => {
-  const context = useContext(NotificationDispatchContext);
-  if (context === undefined) {
-    throw new Error(
-      "useNotificationDispatch must be used within NotificationContextProvider",
-    );
-  }
-  return context;
-};
+// Custom hook to encapsulate setting and automatically clearing notifications
+export const useNotify = () => {
+  const context = useContext(NotificationContext)
+  const dispatch = context[1]
 
-export default NotificationContextProvider;
+  return (message) => {
+    dispatch({ type: 'SET_NOTIFICATION', payload: message })
+    setTimeout(() => {
+      dispatch({ type: 'CLEAR_NOTIFICATION' })
+    }, 5000)
+  }
+}
+
+export default NotificationContext

@@ -8,7 +8,9 @@ import CreateNew from './components/CreateNew'
 import Notification from './components/Notification'
 import ErrorBoundary from './components/ErrorBoundary'
 import NotFound from './components/NotFound'
+import LoginForm from './components/LoginForm'
 import { useBlogStore } from './stores/blogStore'
+import { useUserStore } from './stores/userStore'
 
 const BlogsView = () => {
   const blogs = useBlogStore((state) => state.blogs)
@@ -37,20 +39,33 @@ const BlogsView = () => {
 
 const App = () => {
   const initializeBlogs = useBlogStore((state) => state.initializeBlogs)
+  const initializeUser = useUserStore((state) => state.initializeUser)
+  const user = useUserStore((state) => state.user)
+  const logoutUser = useUserStore((state) => state.logoutUser)
 
   useEffect(() => {
     initializeBlogs()
   }, [initializeBlogs])
+
+  useEffect(() => {
+    initializeUser()
+  }, [initializeUser])
 
   return (
     <Router>
       <div>
         <h1>Software anecdotes</h1>
         <Menu />
+        {user && (
+          <div>
+            {user.name} logged in <button onClick={logoutUser}>logout</button>
+          </div>
+        )}
         <Notification />
         <ErrorBoundary>
           <Routes>
             <Route path="/" element={<BlogsView />} />
+            <Route path="/login" element={<LoginForm />} />
             <Route path="/create" element={<CreateNew />} />
             <Route path="/about" element={<About />} />
             <Route path="*" element={<NotFound />} />

@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router-dom'
-import { useField, useAnecdotes } from '../hooks'
+import { useField } from '../hooks'
+import { useBlogStore } from '../stores/blogStore'
 import { useNotificationStore } from '../stores/notificationStore'
 
 const CreateNew = () => {
-  const { addAnecdote } = useAnecdotes()
+  const createBlog = useBlogStore((state) => state.createBlog)
   const setNotification = useNotificationStore((state) => state.setNotification)
   const { reset: resetContent, ...contentProps } = useField('text')
   const { reset: resetAuthor, ...authorProps } = useField('text')
@@ -12,17 +13,13 @@ const CreateNew = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    addAnecdote({
+    createBlog({
       content: contentProps.value,
       author: authorProps.value,
       info: infoProps.value,
-      votes: 0,
-    }).then((savedAnecdote) => {
-      setNotification(
-        `a new anecdote '${savedAnecdote.content}' created!`,
-        'success',
-        5
-      )
+      likes: 0,
+    }).then((saved) => {
+      setNotification(`a new blog '${saved.content}' created!`, 'success', 5)
       navigate('/')
     })
   }

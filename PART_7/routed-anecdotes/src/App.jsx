@@ -10,8 +10,32 @@ import ErrorBoundary from './components/ErrorBoundary'
 import NotFound from './components/NotFound'
 import { useBlogStore } from './stores/blogStore'
 
-const App = () => {
+const BlogsView = () => {
   const blogs = useBlogStore((state) => state.blogs)
+  const likeBlog = useBlogStore((state) => state.likeBlog)
+  const deleteBlog = useBlogStore((state) => state.deleteBlog)
+
+  return (
+    <div>
+      <h2>Blogs</h2>
+      <ul>
+        {blogs.map((b) => (
+          <li key={b.id}>
+            {b.title || b.content} by {b.author}{' '}
+            <button type="button" onClick={() => likeBlog(b.id)}>
+              like
+            </button>{' '}
+            <button type="button" onClick={() => deleteBlog(b.id)}>
+              delete
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+const App = () => {
   const initializeBlogs = useBlogStore((state) => state.initializeBlogs)
 
   useEffect(() => {
@@ -26,7 +50,7 @@ const App = () => {
         <Notification />
         <ErrorBoundary>
           <Routes>
-            <Route path="/" element={<AnecdoteList anecdotes={blogs} />} />
+            <Route path="/" element={<BlogsView />} />
             <Route path="/create" element={<CreateNew />} />
             <Route path="/about" element={<About />} />
             <Route path="*" element={<NotFound />} />

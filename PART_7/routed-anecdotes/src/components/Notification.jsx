@@ -1,14 +1,9 @@
-import { useNotificationStore } from '../stores/notificationStore'
+import { useNotificationValue } from '../contexts/NotificationContext'
 
 const Notification = () => {
-  const { message, type } = useNotificationStore((state) => ({
-    message: state.message,
-    type: state.type,
-  }))
+  const { message, type } = useNotificationValue()
 
-  if (!message) {
-    return null
-  }
+  if (!message) return null
 
   return <div className={`notification ${type}`}>{message}</div>
 }

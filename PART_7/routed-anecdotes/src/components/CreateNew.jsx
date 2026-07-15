@@ -1,11 +1,11 @@
 import { useNavigate } from 'react-router-dom'
 import { useField } from '../hooks'
 import { useBlogStore } from '../stores/blogStore'
-import { useNotificationStore } from '../stores/notificationStore'
+import { useShowNotification } from '../contexts/NotificationContext'
 
 const CreateNew = () => {
   const createBlog = useBlogStore((state) => state.createBlog)
-  const setNotification = useNotificationStore((state) => state.setNotification)
+  const showNotification = useShowNotification()
   const { reset: resetContent, ...contentProps } = useField('text')
   const { reset: resetAuthor, ...authorProps } = useField('text')
   const { reset: resetInfo, ...infoProps } = useField('text')
@@ -19,7 +19,7 @@ const CreateNew = () => {
       info: infoProps.value,
       likes: 0,
     }).then((saved) => {
-      setNotification(`a new blog '${saved.content}' created!`, 'success', 5)
+      showNotification(`a new blog '${saved.content}' created!`, 'success', 5)
       navigate('/')
     })
   }

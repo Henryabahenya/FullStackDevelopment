@@ -1,30 +1,37 @@
-import { useNavigate } from "react-router-dom";
-import { useField, useAnecdotes } from "../hooks";
+import { useNavigate } from 'react-router-dom'
+import { useField, useAnecdotes } from '../hooks'
+import { useNotificationStore } from '../stores/notificationStore'
 
 const CreateNew = () => {
-  const { addAnecdote } = useAnecdotes();
-  const { reset: resetContent, ...contentProps } = useField("text");
-  const { reset: resetAuthor, ...authorProps } = useField("text");
-  const { reset: resetInfo, ...infoProps } = useField("text");
-  const navigate = useNavigate();
+  const { addAnecdote } = useAnecdotes()
+  const setNotification = useNotificationStore((state) => state.setNotification)
+  const { reset: resetContent, ...contentProps } = useField('text')
+  const { reset: resetAuthor, ...authorProps } = useField('text')
+  const { reset: resetInfo, ...infoProps } = useField('text')
+  const navigate = useNavigate()
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault()
     addAnecdote({
       content: contentProps.value,
       author: authorProps.value,
       info: infoProps.value,
       votes: 0,
-    }).then(() => {
-      navigate("/");
-    });
-  };
+    }).then((savedAnecdote) => {
+      setNotification(
+        `a new anecdote '${savedAnecdote.content}' created!`,
+        'success',
+        5
+      )
+      navigate('/')
+    })
+  }
 
   const handleReset = () => {
-    resetContent();
-    resetAuthor();
-    resetInfo();
-  };
+    resetContent()
+    resetAuthor()
+    resetInfo()
+  }
 
   return (
     <div>
@@ -48,7 +55,7 @@ const CreateNew = () => {
         </button>
       </form>
     </div>
-  );
-};
+  )
+}
 
-export default CreateNew;
+export default CreateNew

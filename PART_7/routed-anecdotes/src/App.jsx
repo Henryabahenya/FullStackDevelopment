@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Menu from './components/Menu'
 import AnecdoteList from './components/AnecdoteList'
@@ -7,8 +8,16 @@ import CreateNew from './components/CreateNew'
 import Notification from './components/Notification'
 import ErrorBoundary from './components/ErrorBoundary'
 import NotFound from './components/NotFound'
+import { useBlogStore } from './stores/blogStore'
 
 const App = () => {
+  const blogs = useBlogStore((state) => state.blogs)
+  const initializeBlogs = useBlogStore((state) => state.initializeBlogs)
+
+  useEffect(() => {
+    initializeBlogs()
+  }, [initializeBlogs])
+
   return (
     <Router>
       <div>
@@ -17,7 +26,7 @@ const App = () => {
         <Notification />
         <ErrorBoundary>
           <Routes>
-            <Route path="/" element={<AnecdoteList />} />
+            <Route path="/" element={<AnecdoteList anecdotes={blogs} />} />
             <Route path="/create" element={<CreateNew />} />
             <Route path="/about" element={<About />} />
             <Route path="*" element={<NotFound />} />

@@ -1,4 +1,4 @@
-import create from 'zustand'
+import { create } from 'zustand'
 import loginService from '../services/loginService'
 import blogService from '../services/blogService'
 

@@ -1,26 +1,32 @@
 import { useNavigate } from 'react-router-dom'
 import { useField } from '../hooks'
-import { useBlogStore } from '../stores/blogStore'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import blogService from '../services/blogService'
 import { useShowNotification } from '../contexts/NotificationContext'
 
 const CreateNew = () => {
-  const createBlog = useBlogStore((state) => state.createBlog)
   const showNotification = useShowNotification()
+  const queryClient = useQueryClient()
+  const navigate = useNavigate()
+  const createMutation = useMutation({
+    mutationFn: (newBlog) => blogService.create(newBlog),
+    onSuccess: (saved) => {
+      queryClient.invalidateQueries({ queryKey: ['blogs'] })
+      showNotification(`a new blog '${saved.content}' created!`, 'success', 5)
+      navigate('/')
+    },
+  })
   const { reset: resetContent, ...contentProps } = useField('text')
   const { reset: resetAuthor, ...authorProps } = useField('text')
   const { reset: resetInfo, ...infoProps } = useField('text')
-  const navigate = useNavigate()
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    createBlog({
+    createMutation.mutate({
       content: contentProps.value,
       author: authorProps.value,
       info: infoProps.value,
       likes: 0,
-    }).then((saved) => {
-      showNotification(`a new blog '${saved.content}' created!`, 'success', 5)
-      navigate('/')
     })
   }
 

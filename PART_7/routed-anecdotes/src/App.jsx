@@ -9,13 +9,19 @@ import Notification from './components/Notification'
 import ErrorBoundary from './components/ErrorBoundary'
 import NotFound from './components/NotFound'
 import LoginForm from './components/LoginForm'
-import { useBlogStore } from './stores/blogStore'
+import { useQuery } from '@tanstack/react-query'
+import blogService from './services/blogService'
 import { useUserStore } from './stores/userStore'
 
 const BlogsView = () => {
-  const blogs = useBlogStore((state) => state.blogs)
-  const likeBlog = useBlogStore((state) => state.likeBlog)
-  const deleteBlog = useBlogStore((state) => state.deleteBlog)
+  const {
+    data: blogs = [],
+    isLoading,
+    isError,
+  } = useQuery({ queryKey: ['blogs'], queryFn: blogService.getAll })
+
+  if (isLoading) return <div>loading blogs…</div>
+  if (isError) return <div>failed to load blogs</div>
 
   return (
     <div>
@@ -23,13 +29,7 @@ const BlogsView = () => {
       <ul>
         {blogs.map((b) => (
           <li key={b.id}>
-            {b.title || b.content} by {b.author}{' '}
-            <button type="button" onClick={() => likeBlog(b.id)}>
-              like
-            </button>{' '}
-            <button type="button" onClick={() => deleteBlog(b.id)}>
-              delete
-            </button>
+            {b.title || b.content} by {b.author}
           </li>
         ))}
       </ul>
@@ -38,14 +38,9 @@ const BlogsView = () => {
 }
 
 const App = () => {
-  const initializeBlogs = useBlogStore((state) => state.initializeBlogs)
   const initializeUser = useUserStore((state) => state.initializeUser)
   const user = useUserStore((state) => state.user)
   const logoutUser = useUserStore((state) => state.logoutUser)
-
-  useEffect(() => {
-    initializeBlogs()
-  }, [initializeBlogs])
 
   useEffect(() => {
     initializeUser()

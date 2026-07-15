@@ -29,5 +29,15 @@ export const useAnecdotes = () => {
     });
   }, []);
 
-  return { anecdotes };
+  const addAnecdote = (newAnecdote) => {
+    return anecdoteService.createNew(newAnecdote).then((savedAnecdote) => {
+      setAnecdotes((prevAnecdotes) => prevAnecdotes.concat(savedAnecdote));
+      return savedAnecdote;
+    });
+  };
+
+  return {
+    anecdotes,
+    addAnecdote,
+  };
 };

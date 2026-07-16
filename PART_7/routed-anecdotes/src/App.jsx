@@ -10,6 +10,7 @@ import ErrorBoundary from './components/ErrorBoundary'
 import NotFound from './components/NotFound'
 import LoginForm from './components/LoginForm'
 import Users from './components/Users'
+import UserDetail from './components/UserDetail'
 import { useQuery } from '@tanstack/react-query'
 import blogService from './services/blogService'
 import { getUser, removeUser } from './services/persistentUser'
@@ -82,6 +83,7 @@ const App = () => {
               <Routes>
                 <Route path="/" element={<BlogsView />} />
                 <Route path="/users" element={<Users />} />
+                <Route path="/users/:id" element={<UserDetail />} />
                 <Route path="/login" element={<LoginForm />} />
                 <Route path="/create" element={<CreateNew />} />
                 <Route path="/about" element={<About />} />

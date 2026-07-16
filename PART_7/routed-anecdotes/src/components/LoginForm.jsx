@@ -1,19 +1,24 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useUserStore } from '../stores/userStore'
+import { useUserDispatch } from '../contexts/UserContext'
+import loginService from '../services/loginService'
+import blogService from '../services/blogService'
 import { useShowNotification } from '../contexts/NotificationContext'
 
 const LoginForm = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const loginUser = useUserStore((s) => s.loginUser)
+  const dispatch = useUserDispatch()
   const showNotification = useShowNotification()
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      await loginUser({ username, password })
+      const user = await loginService.login({ username, password })
+      window.localStorage.setItem('loggedBlogAppUser', JSON.stringify(user))
+      blogService.setToken(user.token)
+      dispatch({ type: 'SET_USER', payload: user })
       showNotification('logged in', 'success', 5)
       navigate('/')
     } catch (err) {

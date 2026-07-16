@@ -11,7 +11,7 @@ import NotFound from './components/NotFound'
 import LoginForm from './components/LoginForm'
 import { useQuery } from '@tanstack/react-query'
 import blogService from './services/blogService'
-import { useUserStore } from './stores/userStore'
+import { useUserDispatch, useUserValue } from './contexts/UserContext'
 
 const BlogsView = () => {
   const {
@@ -36,13 +36,27 @@ const BlogsView = () => {
 }
 
 const App = () => {
-  const initializeUser = useUserStore((state) => state.initializeUser)
-  const user = useUserStore((state) => state.user)
-  const logoutUser = useUserStore((state) => state.logoutUser)
+  const user = useUserValue()
+  const dispatch = useUserDispatch()
 
   useEffect(() => {
-    initializeUser()
-  }, [initializeUser])
+    const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
+    if (loggedUserJSON) {
+      try {
+        const savedUser = JSON.parse(loggedUserJSON)
+        blogService.setToken(savedUser.token)
+        dispatch({ type: 'SET_USER', payload: savedUser })
+      } catch (error) {
+        console.error('Failed to parse stored user', error)
+      }
+    }
+  }, [dispatch])
+
+  const logoutUser = () => {
+    window.localStorage.removeItem('loggedBlogAppUser')
+    blogService.setToken(null)
+    dispatch({ type: 'CLEAR_USER' })
+  }
 
   return (
     <Router>

@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Menu from './components/Menu'
 import Blog from './components/Blog'
+import BlogDetail from './components/BlogDetail'
 import About from './components/About'
 import Footer from './components/Footer'
 import CreateNew from './components/CreateNew'
@@ -61,13 +62,13 @@ const App = () => {
     <Router>
       <div className="app-shell">
         <header className="app-header">
-          <div className="app-header-inner">
+          <div className="app-header-content">
             <div className="app-brand">Blog App</div>
             <Menu />
           </div>
         </header>
 
-        <div className="app-container">
+        <div className="app-layout-wrapper">
           {user && (
             <div className="app-userbar">
               {user.name} logged in{' '}
@@ -84,6 +85,7 @@ const App = () => {
                 <Route path="/" element={<BlogsView />} />
                 <Route path="/users" element={<Users />} />
                 <Route path="/users/:id" element={<UserDetail />} />
+                <Route path="/blogs/:id" element={<BlogDetail />} />
                 <Route path="/login" element={<LoginForm />} />
                 <Route path="/create" element={<CreateNew />} />
                 <Route path="/about" element={<About />} />

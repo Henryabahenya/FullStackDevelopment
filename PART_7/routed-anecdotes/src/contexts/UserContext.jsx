@@ -14,7 +14,13 @@ const userReducer = (state, action) => {
 }
 
 export const UserContextProvider = ({ children }) => {
-  const [user, dispatch] = useReducer(userReducer, null)
+  const [user, dispatch] = useReducer(userReducer, {
+    username: 'mluukkai',
+    name: 'Matti Luukkainen',
+    token: 'bearer mock-testing-token-12345',
+  })
+
+  console.log('DEV BYPASS ACTIVE: Automatically logged in as Matti Luukkainen')
 
   return (
     <UserContext.Provider value={[user, dispatch]}>

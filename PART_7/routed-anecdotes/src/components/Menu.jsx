@@ -1,22 +1,21 @@
 import { Link } from 'react-router-dom'
 
 const Menu = () => {
-  const padding = { paddingRight: 5 }
   return (
-    <div>
-      <Link style={padding} to="/">
-        anecdotes
+    <nav className="app-nav">
+      <Link className="app-nav-link" to="/">
+        BLOGS
       </Link>
-      <Link style={padding} to="/create">
-        create new
+      <Link className="app-nav-link" to="/users">
+        USERS
       </Link>
-      <Link style={padding} to="/about">
-        about
+      <Link className="app-nav-link" to="/create">
+        NEW BLOG
       </Link>
-      <Link style={padding} to="/login">
-        login
+      <Link className="app-nav-link" to="/login">
+        LOGOUT
       </Link>
-    </div>
+    </nav>
   )
 }
 

@@ -9,10 +9,12 @@ import Notification from './components/Notification'
 import ErrorBoundary from './components/ErrorBoundary'
 import NotFound from './components/NotFound'
 import LoginForm from './components/LoginForm'
+import Users from './components/Users'
 import { useQuery } from '@tanstack/react-query'
 import blogService from './services/blogService'
 import { getUser, removeUser } from './services/persistentUser'
 import { useUserDispatch, useUserValue } from './contexts/UserContext'
+import './App.css'
 
 const BlogsView = () => {
   const {
@@ -56,25 +58,40 @@ const App = () => {
 
   return (
     <Router>
-      <div>
-        <h1>Software anecdotes</h1>
-        <Menu />
-        {user && (
-          <div>
-            {user.name} logged in <button onClick={logoutUser}>logout</button>
+      <div className="app-shell">
+        <header className="app-header">
+          <div className="app-header-inner">
+            <div className="app-brand">Blog App</div>
+            <Menu />
           </div>
-        )}
-        <Notification />
-        <ErrorBoundary>
-          <Routes>
-            <Route path="/" element={<BlogsView />} />
-            <Route path="/login" element={<LoginForm />} />
-            <Route path="/create" element={<CreateNew />} />
-            <Route path="/about" element={<About />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </ErrorBoundary>
-        <Footer />
+        </header>
+
+        <div className="app-container">
+          {user && (
+            <div className="app-userbar">
+              {user.name} logged in{' '}
+              <button className="app-logout-button" onClick={logoutUser}>
+                logout
+              </button>
+            </div>
+          )}
+
+          <main className="app-main">
+            <Notification />
+            <ErrorBoundary>
+              <Routes>
+                <Route path="/" element={<BlogsView />} />
+                <Route path="/users" element={<Users />} />
+                <Route path="/login" element={<LoginForm />} />
+                <Route path="/create" element={<CreateNew />} />
+                <Route path="/about" element={<About />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </ErrorBoundary>
+          </main>
+
+          <Footer />
+        </div>
       </div>
     </Router>
   )

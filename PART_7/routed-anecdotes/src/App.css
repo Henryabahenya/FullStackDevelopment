@@ -1,0 +1,135 @@
+.app-shell {
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  min-height: 100vh;
+  background: #f3f6fb;
+  color: #0f172a;
+}
+
+.app-header {
+  width: 100%;
+  background: #1976d2;
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  margin-bottom: 30px;
+}
+
+.app-header-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 15px 24px;
+}
+
+.app-brand {
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+}
+
+.app-nav {
+  display: flex;
+  gap: 28px;
+  margin-left: 32px;
+}
+
+.app-nav-link {
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.93rem;
+  text-transform: uppercase;
+}
+
+.app-nav-link:hover {
+  opacity: 0.88;
+}
+
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.app-userbar {
+  padding: 16px 0;
+  color: #334155;
+  font-size: 0.95rem;
+}
+
+.app-logout-button {
+  background: transparent;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 9999px;
+  color: #0f172a;
+  padding: 6px 12px;
+  margin-left: 12px;
+  cursor: pointer;
+}
+
+.app-main {
+  width: 100%;
+  margin: 24px 0 64px;
+}
+
+.users-page {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: #0f172a;
+}
+
+.users-table-wrapper {
+  overflow-x: auto;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.users-table thead th {
+  text-align: left;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #334155;
+  padding: 16px 12px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.users-table tbody tr {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.users-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.users-table td {
+  padding: 16px 12px;
+  color: #0f172a;
+  vertical-align: middle;
+}
+
+.users-link {
+  color: #1d4ed8;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.users-link:hover {
+  text-decoration: underline;
+}

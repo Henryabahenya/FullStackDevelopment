@@ -1,9 +1,14 @@
+import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import blogService from '../services/blogService'
 
 const BlogDetail = () => {
   const { id } = useParams()
+  const [commentText, setCommentText] = useState('')
+  const [comments, setComments] = useState([])
+  const [commentsLoaded, setCommentsLoaded] = useState(false)
+
   const {
     data: blogs = [],
     isLoading,
@@ -16,7 +21,26 @@ const BlogDetail = () => {
   const blog = blogs.find((b) => b.id === id)
   if (!blog) return <div>blog not found</div>
 
+  // Initialize comments from blog data once
+  if (!commentsLoaded && blog.comments) {
+    setComments(blog.comments)
+    setCommentsLoaded(true)
+  }
+
   const authorName = blog.user?.name || blog.user || 'Unknown'
+
+  const handleAddComment = async (e) => {
+    e.preventDefault()
+    if (!commentText.trim()) return
+
+    try {
+      await blogService.createComment(id, commentText)
+      setComments([...comments, commentText])
+      setCommentText('')
+    } catch (error) {
+      console.error('Failed to add comment:', error)
+    }
+  }
 
   return (
     <div className="blog-detail-card">
@@ -42,9 +66,21 @@ const BlogDetail = () => {
 
       <div className="blog-detail-comments">
         <h3 className="comments-heading">comments</h3>
+        <form className="comment-form" onSubmit={handleAddComment}>
+          <input
+            type="text"
+            className="comment-input"
+            placeholder="add a comment"
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+          />
+          <button type="submit" className="comment-submit-button">
+            ADD COMMENT
+          </button>
+        </form>
         <ul className="comments-list">
-          {blog.comments && blog.comments.length > 0 ? (
-            blog.comments.map((comment, index) => (
+          {comments && comments.length > 0 ? (
+            comments.map((comment, index) => (
               <li key={`${id}-comment-${index}`}>{comment}</li>
             ))
           ) : (

@@ -1,34 +1,28 @@
 import { create } from 'zustand'
 import loginService from '../services/loginService'
 import blogService from '../services/blogService'
-
-const LOCAL_KEY = 'loggedBlogAppUser'
+import { getUser, saveUser, removeUser } from '../services/persistentUser'
 
 export const useUserStore = create((set) => ({
   user: null,
   setUser: (user) => set({ user }),
   loginUser: async (credentials) => {
     const user = await loginService.login(credentials)
-    window.localStorage.setItem(LOCAL_KEY, JSON.stringify(user))
+    saveUser(user)
     blogService.setToken(user.token)
     set({ user })
     return user
   },
   logoutUser: () => {
-    window.localStorage.removeItem(LOCAL_KEY)
+    removeUser()
     blogService.setToken(null)
     set({ user: null })
   },
   initializeUser: () => {
-    const logged = window.localStorage.getItem(LOCAL_KEY)
+    const logged = getUser()
     if (logged) {
-      try {
-        const user = JSON.parse(logged)
-        blogService.setToken(user.token)
-        set({ user })
-      } catch (e) {
-        console.error('Failed to parse stored user', e)
-      }
+      blogService.setToken(logged.token)
+      set({ user: logged })
     }
   },
 }))

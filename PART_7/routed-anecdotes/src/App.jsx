@@ -11,6 +11,7 @@ import NotFound from './components/NotFound'
 import LoginForm from './components/LoginForm'
 import { useQuery } from '@tanstack/react-query'
 import blogService from './services/blogService'
+import { getUser, removeUser } from './services/persistentUser'
 import { useUserDispatch, useUserValue } from './contexts/UserContext'
 
 const BlogsView = () => {
@@ -40,20 +41,15 @@ const App = () => {
   const dispatch = useUserDispatch()
 
   useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('loggedBlogAppUser')
-    if (loggedUserJSON) {
-      try {
-        const savedUser = JSON.parse(loggedUserJSON)
-        blogService.setToken(savedUser.token)
-        dispatch({ type: 'SET_USER', payload: savedUser })
-      } catch (error) {
-        console.error('Failed to parse stored user', error)
-      }
+    const savedUser = getUser()
+    if (savedUser) {
+      blogService.setToken(savedUser.token)
+      dispatch({ type: 'SET_USER', payload: savedUser })
     }
   }, [dispatch])
 
   const logoutUser = () => {
-    window.localStorage.removeItem('loggedBlogAppUser')
+    removeUser()
     blogService.setToken(null)
     dispatch({ type: 'CLEAR_USER' })
   }

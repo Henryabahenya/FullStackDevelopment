@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Menu from './components/Menu'
-import AnecdoteList from './components/AnecdoteList'
+import Blog from './components/Blog'
 import About from './components/About'
 import Footer from './components/Footer'
 import CreateNew from './components/CreateNew'
@@ -28,9 +28,7 @@ const BlogsView = () => {
       <h2>Blogs</h2>
       <ul>
         {blogs.map((b) => (
-          <li key={b.id}>
-            {b.title || b.content} by {b.author}
-          </li>
+          <Blog key={b.id} blog={b} />
         ))}
       </ul>
     </div>

@@ -2,6 +2,7 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const { ApolloServer } = require("@apollo/server");
 const { startStandaloneServer } = require("@apollo/server/standalone");
+const { GraphQLError } = require("graphql");
 
 const Author = require("./models/author");
 const Book = require("./models/book");
@@ -94,7 +95,13 @@ const resolvers = {
         try {
           await author.save();
         } catch (error) {
-          throw new Error(error.message);
+          throw new GraphQLError(error.message, {
+            extensions: {
+              code: "BAD_USER_INPUT",
+              invalidArgs: args,
+              error,
+            },
+          });
         }
       }
 
@@ -108,7 +115,13 @@ const resolvers = {
       try {
         await book.save();
       } catch (error) {
-        throw new Error(error.message);
+        throw new GraphQLError(error.message, {
+          extensions: {
+            code: "BAD_USER_INPUT",
+            invalidArgs: args,
+            error,
+          },
+        });
       }
 
       return book.populate("author");
@@ -124,7 +137,13 @@ const resolvers = {
       try {
         return await author.save();
       } catch (error) {
-        throw new Error(error.message);
+        throw new GraphQLError(error.message, {
+          extensions: {
+            code: "BAD_USER_INPUT",
+            invalidArgs: args,
+            error,
+          },
+        });
       }
     },
   },

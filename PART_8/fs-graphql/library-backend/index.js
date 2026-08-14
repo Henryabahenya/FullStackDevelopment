@@ -1,11 +1,13 @@
 require("dotenv").config();
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
 const { ApolloServer } = require("@apollo/server");
 const { startStandaloneServer } = require("@apollo/server/standalone");
 const { GraphQLError } = require("graphql");
 
 const Author = require("./models/author");
 const Book = require("./models/book");
+const User = require("./models/user");
 
 // Data persistent in MongoDB via Mongoose models
 
@@ -23,12 +25,6 @@ const Book = require("./models/book");
  * Sin embargo, por simplicidad, almacenaremos el nombre del autor en conexión con el libro
  */
 
-// Books are stored in MongoDB via the Book model
-
-/*
-  you can remove the placeholder query once your first one has been implemented 
-*/
-
 const typeDefs = `
   type Book {
     title: String!
@@ -45,11 +41,22 @@ const typeDefs = `
     bookCount: Int!
   }
 
+  type User {
+    username: String!
+    favoriteGenre: String!
+    id: ID!
+  }
+
+  type Token {
+    value: String!
+  }
+
   type Query {
     allBooks(author: String, genre: String): [Book!]!
     allAuthors: [Author!]!
     bookCount: Int!
     authorCount: Int!
+    me: User
   }
 
   type Mutation {
@@ -60,6 +67,8 @@ const typeDefs = `
       genres: [String!]!
     ): Book!
     editAuthor(name: String!, setBornTo: Int!): Author
+    createUser(username: String!, favoriteGenre: String!): User
+    login(username: String!, password: String!): Token
   }
 `;
 
@@ -85,9 +94,16 @@ const resolvers = {
     allAuthors: async () => Author.find({}),
     bookCount: async () => Book.collection.countDocuments(),
     authorCount: async () => Author.collection.countDocuments(),
+    me: async (root, args, context) => context.currentUser || null,
   },
   Mutation: {
-    addBook: async (root, args) => {
+    addBook: async (root, args, context) => {
+      if (!context.currentUser) {
+        throw new GraphQLError("not authenticated", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
       let author = await Author.findOne({ name: args.author });
 
       if (!author) {
@@ -126,7 +142,13 @@ const resolvers = {
 
       return book.populate("author");
     },
-    editAuthor: async (root, args) => {
+    editAuthor: async (root, args, context) => {
+      if (!context.currentUser) {
+        throw new GraphQLError("not authenticated", {
+          extensions: { code: "BAD_USER_INPUT" },
+        });
+      }
+
       const author = await Author.findOne({ name: args.name });
 
       if (!author) {
@@ -145,6 +167,51 @@ const resolvers = {
           },
         });
       }
+    },
+    createUser: async (root, args) => {
+      const user = new User({
+        username: args.username,
+        favoriteGenre: args.favoriteGenre,
+      });
+
+      try {
+        await user.save();
+        return user;
+      } catch (error) {
+        throw new GraphQLError(error.message, {
+          extensions: {
+            code: "BAD_USER_INPUT",
+            invalidArgs: args,
+            error,
+          },
+        });
+      }
+    },
+    login: async (root, args) => {
+      const user = await User.findOne({ username: args.username });
+
+      if (!user || args.password !== "secret") {
+        throw new GraphQLError("wrong credentials");
+      }
+
+      console.log("\n🔓 === LOGIN DEBUG ===");
+      console.log("📌 User authenticating:", args.username);
+      console.log("🔑 JWT_SECRET used for signing:", process.env.JWT_SECRET);
+      console.log("👤 User._id:", user._id);
+
+      const userForToken = {
+        username: user.username,
+        id: user._id,
+      };
+
+      console.log("📦 Token payload being signed:", userForToken);
+      const token = jwt.sign(userForToken, process.env.JWT_SECRET);
+      console.log("✅ Token generated successfully");
+      console.log("=== END LOGIN DEBUG ===\n");
+
+      return {
+        value: token,
+      };
     },
   },
   Author: {
@@ -166,7 +233,22 @@ mongoose
   .catch((error) => console.log("error connection to MongoDB:", error.message));
 
 startStandaloneServer(server, {
-  listen: { port: 4000 },
+  listen: { port: process.env.PORT || 4000 },
+  context: async ({ req }) => {
+    const auth = req ? req.headers.authorization : null;
+
+    if (auth && auth.toLowerCase().startsWith("bearer ")) {
+      const token = auth.substring(7).trim();
+      try {
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+        const currentUser = await User.findById(decodedToken.id);
+        return { currentUser };
+      } catch (error) {
+        console.error("JWT Verification failed:", error.message);
+      }
+    }
+    return {};
+  },
 }).then(({ url }) => {
   console.log(`Server ready at ${url}`);
 });

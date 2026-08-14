@@ -19,9 +19,11 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
+        working-directory: ./PART_8/fs-graphql/library-backend
         run: |
-          npm ci || npm install
+          npm install
 
       - name: Run tests
+        working-directory: ./PART_8/fs-graphql/library-backend
         run: |
           npm test --if-present

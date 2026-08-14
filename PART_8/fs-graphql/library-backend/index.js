@@ -64,7 +64,23 @@ const typeDefs = `
 
 const resolvers = {
   Query: {
-    allBooks: async () => Book.find({}).populate("author"),
+    allBooks: async (root, args) => {
+      const filter = {};
+
+      if (args.genre) {
+        filter.genres = { $in: [args.genre] };
+      }
+
+      if (args.author) {
+        const author = await Author.findOne({ name: args.author });
+        if (!author) {
+          return [];
+        }
+        filter.author = author._id;
+      }
+
+      return Book.find(filter).populate("author");
+    },
     allAuthors: async () => Author.find({}),
     bookCount: async () => Book.collection.countDocuments(),
     authorCount: async () => Author.collection.countDocuments(),

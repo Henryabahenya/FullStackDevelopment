@@ -6,11 +6,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  build_and_test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Node.js
@@ -18,12 +18,20 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install dependencies
+      # Backend Pipeline Steps
+      - name: Install Backend Dependencies
         working-directory: ./PART_8/fs-graphql/library-backend
-        run: |
-          npm install
+        run: npm install
 
-      - name: Run tests
+      - name: Run Backend Tests
         working-directory: ./PART_8/fs-graphql/library-backend
-        run: |
-          npm test --if-present
+        run: npm test --if-present
+
+      # Optional: Add Frontend Steps if/when you have a library-frontend folder
+      # - name: Install Frontend Dependencies
+      #   working-directory: ./PART_8/fs-graphql/library-frontend
+      #   run: npm install
+      #
+      # - name: Build Frontend
+      #   working-directory: ./PART_8/fs-graphql/library-frontend
+      #   run: npm run build

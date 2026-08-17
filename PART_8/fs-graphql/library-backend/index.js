@@ -9,26 +9,10 @@ const Author = require("./models/author");
 const Book = require("./models/book");
 const User = require("./models/user");
 
-// Data persistent in MongoDB via Mongoose models
-
-/*
- * Suomi:
- * Saattaisi olla järkevämpää assosioida kirja ja sen tekijä tallettamalla kirjan yhteyteen tekijän nimen sijaan tekijän id
- * Yksinkertaisuuden vuoksi tallennamme kuitenkin kirjan yhteyteen tekijän nimen
- *
- * English:
- * It might make more sense to associate a book with its author by storing the author's id in the context of the book instead of the author's name
- * However, for simplicity, we will store the author's name in connection with the book
- *
- * Spanish:
- * Podría tener más sentido asociar un libro con su autor almacenando la id del autor en el contexto del libro en lugar del nombre del autor
- * Sin embargo, por simplicidad, almacenaremos el nombre del autor en conexión con el libro
- */
-
 const typeDefs = `
   type Book {
     title: String!
-    author: Author!
+    author: String!
     published: Int!
     genres: [String!]!
     id: ID!
@@ -67,8 +51,9 @@ const typeDefs = `
       genres: [String!]!
     ): Book!
     editAuthor(name: String!, setBornTo: Int!): Author
-    createUser(username: String!, favoriteGenre: String!): User
+    createUser(username: String!, favoriteGenre: String!, password: String!): User
     login(username: String!, password: String!): Token
+    _resetDatabase: Boolean
   }
 `;
 
@@ -82,21 +67,81 @@ const resolvers = {
       }
 
       if (args.author) {
-        const author = await Author.findOne({ name: args.author });
-        if (!author) {
-          return [];
-        }
-        filter.author = author._id;
+        filter.author = args.author;
       }
 
-      return Book.find(filter).populate("author");
+      return Book.find(filter).sort({ title: 1 });
     },
-    allAuthors: async () => Author.find({}),
+    allAuthors: async () => Author.find({}).sort({ name: 1 }),
     bookCount: async () => Book.collection.countDocuments(),
     authorCount: async () => Author.collection.countDocuments(),
     me: async (root, args, context) => context.currentUser || null,
   },
   Mutation: {
+    _resetDatabase: async () => {
+      await Book.deleteMany({});
+      await Author.deleteMany({});
+      await User.deleteMany({});
+
+      const initialBooks = [
+        {
+          title: "Clean Code",
+          published: 2008,
+          author: "Robert Martin",
+          genres: ["refactoring"],
+        },
+        {
+          title: "Agile software development",
+          published: 2002,
+          author: "Robert Martin",
+          genres: ["agile", "patterns", "design"],
+        },
+        {
+          title: "Refactoring, edition 2",
+          published: 2018,
+          author: "Martin Fowler",
+          genres: ["refactoring"],
+        },
+        {
+          title: "Refactoring to patterns",
+          published: 2008,
+          author: "Joshua Kerievsky",
+          genres: ["refactoring", "patterns"],
+        },
+        {
+          title: "Crime and punishment",
+          published: 1866,
+          author: "Fyodor Dostoevsky",
+          genres: ["classic", "crime"],
+        },
+      ];
+
+      for (const book of initialBooks) {
+        let author = await Author.findOne({ name: book.author });
+        if (!author) {
+          author = new Author({ name: book.author });
+          await author.save();
+        }
+
+        const newBook = new Book({
+          title: book.title,
+          published: book.published,
+          author: book.author,
+          genres: book.genres,
+        });
+
+        await newBook.save();
+      }
+
+      const testUser = new User({
+        username: "testuser",
+        favoriteGenre: "refactoring",
+        password: "secret",
+      });
+      await testUser.save();
+
+      return true;
+    },
     addBook: async (root, args, context) => {
       if (!context.currentUser) {
         throw new GraphQLError("not authenticated", {
@@ -105,18 +150,13 @@ const resolvers = {
       }
 
       let author = await Author.findOne({ name: args.author });
-
       if (!author) {
         author = new Author({ name: args.author });
         try {
           await author.save();
         } catch (error) {
           throw new GraphQLError(error.message, {
-            extensions: {
-              code: "BAD_USER_INPUT",
-              invalidArgs: args,
-              error,
-            },
+            extensions: { code: "BAD_USER_INPUT", invalidArgs: args, error },
           });
         }
       }
@@ -125,22 +165,18 @@ const resolvers = {
         title: args.title,
         published: args.published,
         genres: args.genres,
-        author: author._id,
+        author: args.author,
       });
 
       try {
         await book.save();
       } catch (error) {
         throw new GraphQLError(error.message, {
-          extensions: {
-            code: "BAD_USER_INPUT",
-            invalidArgs: args,
-            error,
-          },
+          extensions: { code: "BAD_USER_INPUT", invalidArgs: args, error },
         });
       }
 
-      return book.populate("author");
+      return book;
     },
     editAuthor: async (root, args, context) => {
       if (!context.currentUser) {
@@ -150,7 +186,6 @@ const resolvers = {
       }
 
       const author = await Author.findOne({ name: args.name });
-
       if (!author) {
         return null;
       }
@@ -160,11 +195,7 @@ const resolvers = {
         return await author.save();
       } catch (error) {
         throw new GraphQLError(error.message, {
-          extensions: {
-            code: "BAD_USER_INPUT",
-            invalidArgs: args,
-            error,
-          },
+          extensions: { code: "BAD_USER_INPUT", invalidArgs: args, error },
         });
       }
     },
@@ -172,6 +203,7 @@ const resolvers = {
       const user = new User({
         username: args.username,
         favoriteGenre: args.favoriteGenre,
+        password: args.password,
       });
 
       try {
@@ -179,53 +211,32 @@ const resolvers = {
         return user;
       } catch (error) {
         throw new GraphQLError(error.message, {
-          extensions: {
-            code: "BAD_USER_INPUT",
-            invalidArgs: args,
-            error,
-          },
+          extensions: { code: "BAD_USER_INPUT", invalidArgs: args, error },
         });
       }
     },
     login: async (root, args) => {
       const user = await User.findOne({ username: args.username });
 
-      if (!user || args.password !== "secret") {
+      if (!user || args.password !== user.password) {
         throw new GraphQLError("wrong credentials");
       }
 
-      console.log("\n🔓 === LOGIN DEBUG ===");
-      console.log("📌 User authenticating:", args.username);
-      console.log("🔑 JWT_SECRET used for signing:", process.env.JWT_SECRET);
-      console.log("👤 User._id:", user._id);
-
-      const userForToken = {
-        username: user.username,
-        id: user._id,
-      };
-
-      console.log("📦 Token payload being signed:", userForToken);
-      const token = jwt.sign(userForToken, process.env.JWT_SECRET);
-      console.log("✅ Token generated successfully");
-      console.log("=== END LOGIN DEBUG ===\n");
-
-      return {
-        value: token,
-      };
+      const token = jwt.sign(
+        { username: user.username, id: user._id },
+        process.env.JWT_SECRET,
+      );
+      return { value: token };
     },
   },
   Author: {
-    bookCount: async (root) => Book.countDocuments({ author: root._id }),
+    bookCount: async (root) => Book.countDocuments({ author: root.name }),
   },
 };
 
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-});
+const server = new ApolloServer({ typeDefs, resolvers });
 
 const MONGODB_URI = process.env.MONGODB_URI;
-
 console.log("connecting to", MONGODB_URI);
 mongoose
   .connect(MONGODB_URI)

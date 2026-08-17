@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation, gql } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 
 const ADD_BOOK = gql`
   mutation addBook(
@@ -25,78 +25,87 @@ const ADD_BOOK = gql`
   }
 `;
 
-const NewBook = (props) => {
+const NewBook = ({ show }) => {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [published, setPublished] = useState("");
   const [genre, setGenre] = useState("");
   const [genres, setGenres] = useState([]);
-  const [addBook, result] = useMutation(ADD_BOOK);
+  const [addBook] = useMutation(ADD_BOOK, {
+    refetchQueries: ["allBooks"],
+  });
 
-  if (!props.show) {
+  if (!show) {
     return null;
   }
 
-  const submit = async (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
+    await addBook({
+      variables: {
+        title,
+        author,
+        published: Number(published),
+        genres,
+      },
+    });
 
-    try {
-      await addBook({
-        variables: {
-          title,
-          author,
-          published: parseInt(published),
-          genres,
-        },
-      });
-
-      setTitle("");
-      setPublished("");
-      setAuthor("");
-      setGenres([]);
-      setGenre("");
-    } catch (error) {
-      console.error("Error adding book:", error);
-    }
+    setTitle("");
+    setAuthor("");
+    setPublished("");
+    setGenre("");
+    setGenres([]);
   };
 
   const addGenre = () => {
-    setGenres(genres.concat(genre));
+    if (!genre.trim()) {
+      return;
+    }
+
+    setGenres((prev) => [...prev, genre.trim()]);
     setGenre("");
   };
 
   return (
     <div>
-      {result.error && <div>Error: {result.error.message}</div>}
-      <form onSubmit={submit}>
+      <form onSubmit={handleSubmit}>
         <div>
-          title
+          <label htmlFor="title">title</label>
           <input
+            id="title"
+            name="title"
             value={title}
             onChange={({ target }) => setTitle(target.value)}
           />
         </div>
         <div>
-          author
+          <label htmlFor="author">author</label>
           <input
+            id="author"
+            name="author"
             value={author}
             onChange={({ target }) => setAuthor(target.value)}
           />
         </div>
         <div>
-          published
+          <label htmlFor="published">published</label>
           <input
+            id="published"
+            name="published"
             type="number"
             value={published}
             onChange={({ target }) => setPublished(target.value)}
           />
         </div>
         <div>
+          <label htmlFor="genre">genre</label>
           <input
+            id="genre"
+            name="genre"
             value={genre}
             onChange={({ target }) => setGenre(target.value)}
           />
-          <button onClick={addGenre} type="button">
+          <button type="button" onClick={addGenre}>
             add genre
           </button>
         </div>

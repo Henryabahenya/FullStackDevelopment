@@ -43,7 +43,33 @@ export function calculateExercises(
   };
 }
 
-// Hard-coded test execution
-const sampleInput = [3, 0, 2, 4.5, 0, 3, 1];
-const sampleTarget = 2;
-console.log(calculateExercises(sampleInput, sampleTarget));
+import { isNotNumber } from "./utils.js";
+
+// CLI parsing and error handling
+try {
+  const args = process.argv.slice(2);
+  if (args.length < 2) {
+    throw new Error("Provide target and at least one day of exercise hours");
+  }
+
+  const [targetArg, ...hoursArgs] = args;
+  if (isNotNumber(targetArg)) {
+    throw new Error("Target value is not a number");
+  }
+
+  const target = Number(targetArg);
+  const dailyHours = hoursArgs.map((h: string) => {
+    if (isNotNumber(h)) {
+      throw new Error("All daily hour values must be numbers");
+    }
+    return Number(h);
+  });
+
+  console.log(calculateExercises(dailyHours, target));
+} catch (error: unknown) {
+  let errorMessage = "Error: ";
+  if (error instanceof Error) {
+    errorMessage += error.message;
+  }
+  console.log(errorMessage);
+}

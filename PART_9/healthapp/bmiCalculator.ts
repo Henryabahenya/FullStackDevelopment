@@ -1,3 +1,5 @@
+import { isNotNumber } from "./utils.js";
+
 export const calculateBmi = (heightCm: number, weightKg: number): string => {
   const heightInMeters = heightCm / 100;
   const bmi = weightKg / (heightInMeters * heightInMeters);
@@ -17,4 +19,26 @@ export const calculateBmi = (heightCm: number, weightKg: number): string => {
   return "Obese";
 };
 
-console.log(calculateBmi(180, 74));
+// CLI parsing and error handling
+try {
+  const args = process.argv.slice(2);
+  if (args.length < 2) {
+    throw new Error("Provide height (cm) and weight (kg) as arguments");
+  }
+
+  const [heightArg, weightArg] = args;
+  if (isNotNumber(heightArg) || isNotNumber(weightArg)) {
+    throw new Error("Provided values were not numbers");
+  }
+
+  const height = Number(heightArg);
+  const weight = Number(weightArg);
+
+  console.log(calculateBmi(height, weight));
+} catch (error: unknown) {
+  let errorMessage = "Error: ";
+  if (error instanceof Error) {
+    errorMessage += error.message;
+  }
+  console.log(errorMessage);
+}

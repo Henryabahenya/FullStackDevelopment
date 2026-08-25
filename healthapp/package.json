@@ -6,12 +6,14 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-   "calculateExercises": "tsc && node build/exerciseCalculator.js"
+    "calculateBmi": "tsc && node build/bmiCalculator.js",
+    "calculateExercises": "tsc && node build/exerciseCalculator.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/node": "^26.3.0",
     "ts-node": "^10.9.2",
     "typescript": "^7.0.2"
   }

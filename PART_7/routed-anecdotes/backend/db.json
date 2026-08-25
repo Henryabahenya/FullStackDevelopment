@@ -1,0 +1,25 @@
+{
+  "anecdotes": [
+    {
+      "id": 1,
+      "content": "If it hurts, do it more often",
+      "author": "Jez Humble",
+      "info": "https://martinfowler.com/bliki/FrequencyReducesDifficulty.html",
+      "votes": 0
+    },
+    {
+      "id": 2,
+      "content": "Premature optimization is the root of all evil",
+      "author": "Donald Knuth",
+      "info": "http://wiki.c2.com/?PrematureOptimization",
+      "votes": 0
+    },
+    {
+      "id": 3,
+      "content": "Debugging is twice as hard as writing the code in the first place.",
+      "author": "Brian Kernighan",
+      "info": "https://en.wikipedia.org/wiki/Brian_Kernighan",
+      "votes": 0
+    }
+  ]
+}

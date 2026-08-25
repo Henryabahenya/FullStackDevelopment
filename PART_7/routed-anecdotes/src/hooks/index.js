@@ -1,0 +1,50 @@
+import { useState, useEffect } from "react";
+import anecdoteService from "../services/anecdotes";
+
+export const useField = (type) => {
+  const [value, setValue] = useState("");
+
+  const onChange = (event) => {
+    setValue(event.target.value);
+  };
+
+  const reset = () => {
+    setValue("");
+  };
+
+  return {
+    type,
+    value,
+    onChange,
+    reset,
+  };
+};
+
+export const useAnecdotes = () => {
+  const [anecdotes, setAnecdotes] = useState([]);
+
+  useEffect(() => {
+    anecdoteService.getAll().then((initialAnecdotes) => {
+      setAnecdotes(initialAnecdotes);
+    });
+  }, []);
+
+  const addAnecdote = (newAnecdote) => {
+    return anecdoteService.createNew(newAnecdote).then((savedAnecdote) => {
+      setAnecdotes((prevAnecdotes) => prevAnecdotes.concat(savedAnecdote));
+      return savedAnecdote;
+    });
+  };
+
+  const deleteAnecdote = (id) => {
+    return anecdoteService.remove(id).then(() => {
+      setAnecdotes((prevAnecdotes) => prevAnecdotes.filter((a) => a.id !== id));
+    });
+  };
+
+  return {
+    anecdotes,
+    addAnecdote,
+    deleteAnecdote,
+  };
+};

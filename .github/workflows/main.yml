@@ -1,0 +1,37 @@
+name: Build and Test Pipeline
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # Backend Pipeline Steps
+      - name: Install Backend Dependencies
+        working-directory: ./PART_8/fs-graphql/library-backend
+        run: npm install
+
+      - name: Run Backend Tests
+        working-directory: ./PART_8/fs-graphql/library-backend
+        run: npm test --if-present
+
+      # Optional: Add Frontend Steps if/when you have a library-frontend folder
+      # - name: Install Frontend Dependencies
+      #   working-directory: ./PART_8/fs-graphql/library-frontend
+      #   run: npm install
+      #
+      # - name: Build Frontend
+      #   working-directory: ./PART_8/fs-graphql/library-frontend
+      #   run: npm run build

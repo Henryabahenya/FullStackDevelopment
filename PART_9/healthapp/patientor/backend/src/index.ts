@@ -13,7 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/api/ping", (_req, res) => {
-  res.json({ message: "pong" });
+  res.send("pong");
 });
 
 app.get("/api/diagnoses", (_req, res) => {
@@ -41,7 +41,7 @@ app.post("/api/patients", (req, res) => {
 
     patients.push(newPatient);
 
-    res.status(201).json(newPatient);
+    res.status(200).json(newPatient);
   } catch (e: unknown) {
     let errorMessage = "Something went wrong.";
     if (e instanceof Error) {

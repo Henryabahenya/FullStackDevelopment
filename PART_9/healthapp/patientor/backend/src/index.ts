@@ -2,7 +2,8 @@ import express from "express";
 import cors from "cors";
 import diagnoses from "./data/diagnoses";
 import patients from "./data/patients";
-import { Patient } from "./types";
+import { getAllPatients } from "./data/patientService";
+import { Patient, PublicPatient } from "./types";
 import { v4 as uuidv4 } from "uuid";
 import { toNewPatient } from "./utils";
 
@@ -20,16 +21,12 @@ app.get("/api/diagnoses", (_req, res) => {
 });
 
 app.get("/api/patients", (_req, res) => {
-  const nonSensitive = patients.map(
-    ({ id, name, dateOfBirth, gender, occupation }) => ({
-      id,
-      name,
-      dateOfBirth,
-      gender,
-      occupation,
-    }),
-  );
-  res.json(nonSensitive);
+  const allPatients: PublicPatient[] = getAllPatients().map((patient) => {
+    const { ssn, ...publicPatient } = patient;
+    return publicPatient;
+  });
+
+  res.json(allPatients);
 });
 
 // Parsers and validation are handled in `src/utils.ts`

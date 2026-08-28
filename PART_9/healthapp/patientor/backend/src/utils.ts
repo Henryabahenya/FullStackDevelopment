@@ -1,4 +1,4 @@
-import { Gender, NewPatient } from "./services/patients";
+import { Gender, NewPatient } from "./types";
 
 const isString = (text: unknown): text is string => {
   return typeof text === "string" || text instanceof String;
@@ -8,7 +8,7 @@ const isDate = (date: string): boolean => {
   return Boolean(Date.parse(date));
 };
 
-const isGender = (param: any): param is Gender => {
+const isGender = (param: unknown): param is Gender => {
   return param === "male" || param === "female" || param === "other";
 };
 
@@ -19,17 +19,15 @@ const parseName = (name: unknown): string => {
   return name;
 };
 
-const parseDateOfBirth = (date: unknown): string | undefined => {
-  if (!date) return undefined;
-  if (!isString(date) || !isDate(date)) {
+const parseDateOfBirth = (date: unknown): string => {
+  if (!date || !isString(date) || !isDate(date)) {
     throw new Error("Incorrect or missing dateOfBirth");
   }
   return date;
 };
 
-const parseSsn = (ssn: unknown): string | undefined => {
-  if (!ssn) return undefined;
-  if (!isString(ssn)) {
+const parseSsn = (ssn: unknown): string => {
+  if (!ssn || !isString(ssn)) {
     throw new Error("Incorrect or missing ssn");
   }
   return ssn;

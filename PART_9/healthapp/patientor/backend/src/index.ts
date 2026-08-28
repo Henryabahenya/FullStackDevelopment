@@ -1,7 +1,8 @@
 import express from "express";
 import cors from "cors";
-import diagnoses from "./services/diagnoses";
-import patients, { Patient } from "./services/patients";
+import diagnoses from "./data/diagnoses";
+import patients from "./data/patients";
+import { Patient } from "./types";
 import { v4 as uuidv4 } from "uuid";
 import { toNewPatient } from "./utils";
 

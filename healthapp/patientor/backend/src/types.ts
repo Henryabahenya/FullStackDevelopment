@@ -1,4 +1,10 @@
-export type Gender = string;
+export const Gender = {
+  Male: "male",
+  Female: "female",
+  Other: "other",
+} as const;
+
+export type Gender = (typeof Gender)[keyof typeof Gender];
 
 export type Diagnosis = {
   code: string;

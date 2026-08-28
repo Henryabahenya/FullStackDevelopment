@@ -9,7 +9,7 @@ const isDate = (date: string): boolean => {
 };
 
 const isGender = (param: unknown): param is Gender => {
-  return param === "male" || param === "female" || param === "other";
+  return Object.values(Gender).includes(param as Gender);
 };
 
 const parseName = (name: unknown): string => {
@@ -47,14 +47,24 @@ const parseOccupation = (occupation: unknown): string => {
   return occupation;
 };
 
-export const toNewPatient = (object: any): NewPatient => {
+export const toNewPatientEntry = (object: unknown): NewPatient => {
+  if (!object || typeof object !== "object") {
+    throw new Error("Patient data is missing");
+  }
+
+  const candidate = object as Record<string, unknown>;
+
   return {
-    name: parseName(object.name),
-    dateOfBirth: parseDateOfBirth(object.dateOfBirth),
-    ssn: parseSsn(object.ssn),
-    gender: parseGender(object.gender),
-    occupation: parseOccupation(object.occupation),
+    name: parseName(candidate.name),
+    dateOfBirth: parseDateOfBirth(candidate.dateOfBirth),
+    ssn: parseSsn(candidate.ssn),
+    gender: parseGender(candidate.gender),
+    occupation: parseOccupation(candidate.occupation),
   };
+};
+
+export const toNewPatient = (object: unknown): NewPatient => {
+  return toNewPatientEntry(object);
 };
 
 export { isString, isDate, isGender };

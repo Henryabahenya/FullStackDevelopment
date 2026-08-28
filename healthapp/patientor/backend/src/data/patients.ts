@@ -1,4 +1,4 @@
-import { Patient } from "../types";
+import { Gender, Patient } from "../types";
 
 const patients: Patient[] = [
   {
@@ -6,7 +6,7 @@ const patients: Patient[] = [
     name: "John McClane",
     dateOfBirth: "1986-07-09",
     ssn: "090786-123X",
-    gender: "male",
+    gender: Gender.Male,
     occupation: "New york city cop",
     entries: [],
   },
@@ -15,7 +15,7 @@ const patients: Patient[] = [
     name: "Martin Riggs",
     dateOfBirth: "1979-03-12",
     ssn: "120379-456A",
-    gender: "male",
+    gender: Gender.Male,
     occupation: "Cop",
     entries: [],
   },
@@ -24,7 +24,7 @@ const patients: Patient[] = [
     name: "Ada Lovelace",
     dateOfBirth: "1815-12-10",
     ssn: "101215-789B",
-    gender: "female",
+    gender: Gender.Female,
     occupation: "Mathematician",
     entries: [],
   },

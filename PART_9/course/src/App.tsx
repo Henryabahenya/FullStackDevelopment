@@ -4,6 +4,10 @@ import {
   diaryService,
   type DiaryEntry,
   type NewDiaryEntry,
+  type Visibility,
+  type Weather,
+  VISIBILITY_OPTIONS,
+  WEATHER_OPTIONS,
 } from "./diaryService";
 
 function App() {
@@ -58,6 +62,20 @@ function App() {
     setFormData((prev) => ({
       ...prev,
       [name]: value,
+    }));
+  };
+
+  const handleVisibilityChange = (visibility: Visibility) => {
+    setFormData((prev) => ({
+      ...prev,
+      visibility,
+    }));
+  };
+
+  const handleWeatherChange = (weather: Weather) => {
+    setFormData((prev) => ({
+      ...prev,
+      weather,
     }));
   };
 
@@ -190,7 +208,7 @@ function App() {
               Visibility:
             </label>
             <div style={{ display: "flex", gap: "15px" }}>
-              {["great", "good", "ok", "poor"].map((visibility) => (
+              {VISIBILITY_OPTIONS.map((visibility) => (
                 <label
                   key={visibility}
                   style={{ display: "flex", alignItems: "center", gap: "5px" }}
@@ -200,7 +218,7 @@ function App() {
                     name="visibility"
                     value={visibility}
                     checked={formData.visibility === visibility}
-                    onChange={handleFormChange}
+                    onChange={() => handleVisibilityChange(visibility)}
                   />
                   {visibility.charAt(0).toUpperCase() + visibility.slice(1)}
                 </label>
@@ -213,27 +231,25 @@ function App() {
               Weather:
             </label>
             <div style={{ display: "flex", gap: "15px", flexWrap: "wrap" }}>
-              {["sunny", "rainy", "cloudy", "stormy", "windy"].map(
-                (weather) => (
-                  <label
-                    key={weather}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "5px",
-                    }}
-                  >
-                    <input
-                      type="radio"
-                      name="weather"
-                      value={weather}
-                      checked={formData.weather === weather}
-                      onChange={handleFormChange}
-                    />
-                    {weather.charAt(0).toUpperCase() + weather.slice(1)}
-                  </label>
-                ),
-              )}
+              {WEATHER_OPTIONS.map((weather) => (
+                <label
+                  key={weather}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "5px",
+                  }}
+                >
+                  <input
+                    type="radio"
+                    name="weather"
+                    value={weather}
+                    checked={formData.weather === weather}
+                    onChange={() => handleWeatherChange(weather)}
+                  />
+                  {weather.charAt(0).toUpperCase() + weather.slice(1)}
+                </label>
+              ))}
             </div>
           </div>
 

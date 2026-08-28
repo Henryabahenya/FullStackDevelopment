@@ -4,7 +4,7 @@ import diagnoses from "./data/diagnoses";
 import patients from "./data/patients";
 import { getAllPatients } from "./data/patientService";
 import { Patient, PublicPatient } from "./types";
-import { v4 as uuidv4 } from "uuid";
+import { v1 as uuid } from "uuid";
 import { toNewPatient } from "./utils";
 
 const app = express();
@@ -29,14 +29,12 @@ app.get("/api/patients", (_req, res) => {
   res.json(allPatients);
 });
 
-// Parsers and validation are handled in `src/utils.ts`
-
 app.post("/api/patients", (req, res) => {
   try {
     const newPatientData = toNewPatient(req.body);
 
     const newPatient: Patient = {
-      id: uuidv4(),
+      id: uuid(),
       ...newPatientData,
       entries: [],
     };

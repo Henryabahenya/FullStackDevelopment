@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import axios from "axios";
 import {
   diaryService,
   type DiaryEntry,
@@ -38,6 +39,16 @@ function App() {
     fetchDiaries();
   }, []);
 
+  // Auto-clear submit error after 5 seconds
+  useEffect(() => {
+    if (submitError) {
+      const timer = setTimeout(() => {
+        setSubmitError(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [submitError]);
+
   const handleFormChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -70,8 +81,31 @@ function App() {
         comment: "",
       });
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Failed to create diary entry";
+      let errorMessage = "Failed to create diary entry";
+
+      // Check if the error is an Axios error with a response
+      if (axios.isAxiosError(err) && err.response?.data) {
+        const respData = err.response.data;
+        // Extract error message from backend response
+        if (typeof respData === "string") {
+          errorMessage = respData;
+        } else if (
+          respData &&
+          typeof respData === "object" &&
+          "message" in respData
+        ) {
+          errorMessage = (respData as { message: string }).message;
+        } else if (
+          respData &&
+          typeof respData === "object" &&
+          "error" in respData
+        ) {
+          errorMessage = (respData as { error: string }).error;
+        }
+      } else if (err instanceof Error) {
+        errorMessage = err.message;
+      }
+
       setSubmitError(errorMessage);
       console.error("Error creating diary entry:", err);
     } finally {
@@ -96,9 +130,35 @@ function App() {
         <h2>Add New Entry</h2>
         {submitError && (
           <div
-            style={{ color: "red", marginBottom: "15px", fontWeight: "bold" }}
+            style={{
+              backgroundColor: "#f8d7da",
+              color: "#721c24",
+              padding: "12px 15px",
+              marginBottom: "15px",
+              borderRadius: "4px",
+              border: "1px solid #f5c6cb",
+              fontWeight: "bold",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
           >
-            {submitError}
+            <span>⚠️ {submitError}</span>
+            <button
+              type="button"
+              onClick={() => setSubmitError(null)}
+              style={{
+                background: "none",
+                border: "none",
+                fontSize: "1.5rem",
+                cursor: "pointer",
+                color: "#721c24",
+                padding: "0",
+                marginLeft: "10px",
+              }}
+            >
+              ×
+            </button>
           </div>
         )}
         <form onSubmit={handleSubmit}>

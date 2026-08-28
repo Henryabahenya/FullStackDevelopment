@@ -1,4 +1,26 @@
+import { z } from "zod";
 import { Gender, NewPatient } from "./types";
+
+export const patientSchema = z.object({
+  name: z.string().min(1),
+  dateOfBirth: z.string().refine((value) => !Number.isNaN(Date.parse(value)), {
+    message: "Invalid dateOfBirth",
+  }),
+  ssn: z.string().min(1),
+  gender: z.enum([Gender.Male, Gender.Female, Gender.Other]),
+  occupation: z.string().min(1),
+});
+
+export const parseNewPatient = (input: unknown): NewPatient => {
+  const parsed = patientSchema.parse(input);
+  return {
+    name: parsed.name,
+    dateOfBirth: parsed.dateOfBirth,
+    ssn: parsed.ssn,
+    gender: parsed.gender,
+    occupation: parsed.occupation,
+  };
+};
 
 const isString = (text: unknown): text is string => {
   return typeof text === "string" || text instanceof String;

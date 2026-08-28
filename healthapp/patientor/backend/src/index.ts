@@ -5,7 +5,7 @@ import patients from "./data/patients";
 import { getAllPatients } from "./data/patientService";
 import { Patient, PublicPatient } from "./types";
 import { v1 as uuid } from "uuid";
-import { toNewPatient } from "./utils";
+import { parseNewPatient } from "./utils";
 
 const app = express();
 
@@ -31,7 +31,7 @@ app.get("/api/patients", (_req, res) => {
 
 app.post("/api/patients", (req, res) => {
   try {
-    const newPatientData = toNewPatient(req.body);
+    const newPatientData = parseNewPatient(req.body);
 
     const newPatient: Patient = {
       id: uuid(),

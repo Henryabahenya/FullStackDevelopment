@@ -1,4 +1,4 @@
-export type Gender = "male" | "female" | "other";
+export type Gender = string;
 
 export type Diagnosis = {
   code: string;
@@ -16,4 +16,5 @@ export type Patient = {
   entries: unknown[];
 };
 
+export type PublicPatient = Omit<Patient, "ssn">;
 export type NewPatient = Omit<Patient, "id" | "entries">;

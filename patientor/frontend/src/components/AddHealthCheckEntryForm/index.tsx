@@ -8,8 +8,11 @@ import {
   InputLabel,
   Select,
   SelectChangeEvent,
+  Checkbox,
+  ListItemText,
 } from "@mui/material";
 import { Entry } from "../../types";
+import { useDiagnoses } from "../../context/DiagnosesContext";
 
 type NewEntry = Omit<Entry, "id">;
 
@@ -26,7 +29,8 @@ const AddHealthCheckEntryForm: React.FC<Props> = ({ onSubmit, onCancel }) => {
   const [description, setDescription] = useState("");
   const [specialist, setSpecialist] = useState("");
   const [rating, setRating] = useState<number | "">("");
-  const [codesText, setCodesText] = useState("");
+  const { diagnoses } = useDiagnoses();
+  const [selectedCodes, setSelectedCodes] = useState<string[]>([]);
 
   // Occupational fields
   const [employerName, setEmployerName] = useState("");
@@ -45,10 +49,7 @@ const AddHealthCheckEntryForm: React.FC<Props> = ({ onSubmit, onCancel }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const diagnosisCodes = codesText
-      .split(",")
-      .map((c) => c.trim())
-      .filter((c) => c.length > 0);
+    const diagnosisCodes = selectedCodes;
 
     let entry: NewEntry;
 
@@ -151,10 +152,10 @@ const AddHealthCheckEntryForm: React.FC<Props> = ({ onSubmit, onCancel }) => {
           required
           sx={{ mb: 2 }}
         >
-          <MenuItem value={0}>0</MenuItem>
-          <MenuItem value={1}>1</MenuItem>
-          <MenuItem value={2}>2</MenuItem>
-          <MenuItem value={3}>3</MenuItem>
+          <MenuItem value={0}>0 — Healthy</MenuItem>
+          <MenuItem value={1}>1 — Low Risk</MenuItem>
+          <MenuItem value={2}>2 — High Risk</MenuItem>
+          <MenuItem value={3}>3 — Critical Risk</MenuItem>
         </TextField>
       )}
 
@@ -212,13 +213,31 @@ const AddHealthCheckEntryForm: React.FC<Props> = ({ onSubmit, onCancel }) => {
         </>
       )}
 
-      <TextField
-        label="Diagnosis Codes (comma separated)"
-        value={codesText}
-        onChange={(e) => setCodesText(e.target.value)}
-        fullWidth
-        sx={{ mb: 2 }}
-      />
+      <FormControl fullWidth sx={{ mb: 2 }}>
+        <InputLabel id="diagnosis-codes-label">Diagnosis Codes</InputLabel>
+        <Select
+          labelId="diagnosis-codes-label"
+          multiple
+          value={selectedCodes}
+          onChange={(e) => {
+            const value = e.target.value;
+            setSelectedCodes(
+              typeof value === "string"
+                ? value.split(",")
+                : (value as string[]),
+            );
+          }}
+          renderValue={(selected) => (selected as string[]).join(", ")}
+          label="Diagnosis Codes"
+        >
+          {diagnoses.map((d) => (
+            <MenuItem key={d.code} value={d.code}>
+              <Checkbox checked={selectedCodes.indexOf(d.code) > -1} />
+              <ListItemText primary={`${d.code}: ${d.name}`} />
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
 
       <Box sx={{ display: "flex", gap: 1 }}>
         <Button type="submit" variant="contained" disabled={submitting}>

@@ -9,6 +9,7 @@ import { Patient } from "./types";
 import patientService from "./services/patients";
 import PatientListPage from "./components/PatientListPage";
 import PatientDetailPage from "./components/PatientDetailPage";
+import { DiagnosesProvider } from "./context/DiagnosesContext";
 
 const App = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -25,29 +26,31 @@ const App = () => {
 
   return (
     <div className="App">
-      <Router>
-        <Container>
-          <Typography variant="h3" sx={{ marginBottom: "0.5em" }}>
-            Patientor
-          </Typography>
-          <Button component={Link} to="/" variant="contained" color="primary">
-            Home
-          </Button>
-          <Divider sx={{ marginY: 2 }} />
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <PatientListPage
-                  patients={patients}
-                  setPatients={setPatients}
-                />
-              }
-            />
-            <Route path="/patients/:id" element={<PatientDetailPage />} />
-          </Routes>
-        </Container>
-      </Router>
+      <DiagnosesProvider>
+        <Router>
+          <Container>
+            <Typography variant="h3" sx={{ marginBottom: "0.5em" }}>
+              Patientor
+            </Typography>
+            <Button component={Link} to="/" variant="contained" color="primary">
+              Home
+            </Button>
+            <Divider sx={{ marginY: 2 }} />
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <PatientListPage
+                    patients={patients}
+                    setPatients={setPatients}
+                  />
+                }
+              />
+              <Route path="/patients/:id" element={<PatientDetailPage />} />
+            </Routes>
+          </Container>
+        </Router>
+      </DiagnosesProvider>
     </div>
   );
 };

@@ -3,12 +3,14 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Box, Typography, Button } from "@mui/material";
 import { Patient } from "../../types";
 import patientService from "../../services/patients";
+import { useDiagnoses } from "../../context/DiagnosesContext";
 
 const PatientDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [patient, setPatient] = useState<Patient | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { diagnoses } = useDiagnoses();
 
   useEffect(() => {
     if (id) {
@@ -25,6 +27,11 @@ const PatientDetailPage = () => {
       void fetchPatient();
     }
   }, [id]);
+
+  const getDiagnosisDescription = (code: string): string => {
+    const diagnosis = diagnoses.find((d) => d.code === code);
+    return diagnosis ? diagnosis.name : code;
+  };
 
   if (error) {
     return (
@@ -81,13 +88,37 @@ const PatientDetailPage = () => {
           {patient.entries.length === 0 ? (
             <Typography>No entries</Typography>
           ) : (
-            <Box>
-              {patient.entries.map((_entry, index) => (
+            <Box sx={{ marginTop: 1 }}>
+              {patient.entries.map((entry) => (
                 <Box
-                  key={index}
-                  sx={{ marginTop: 1, padding: 1, backgroundColor: "#f5f5f5" }}
+                  key={entry.id}
+                  sx={{
+                    marginTop: 2,
+                    padding: 2,
+                    backgroundColor: "#f5f5f5",
+                    borderLeft: "4px solid #1976d2",
+                  }}
                 >
-                  Entry {index + 1}
+                  <Typography>
+                    <strong>{entry.date}</strong> - {entry.description}
+                  </Typography>
+                  <Typography sx={{ marginTop: 1 }}>
+                    <strong>Specialist:</strong> {entry.specialist}
+                  </Typography>
+                  {entry.diagnosisCodes && entry.diagnosisCodes.length > 0 && (
+                    <Box sx={{ marginTop: 1 }}>
+                      <Typography sx={{ marginBottom: 0.5 }}>
+                        <strong>Diagnosis Codes:</strong>
+                      </Typography>
+                      <ul style={{ marginTop: 0.5, marginBottom: 0 }}>
+                        {entry.diagnosisCodes.map((code) => (
+                          <li key={code}>
+                            {code}: {getDiagnosisDescription(code)}
+                          </li>
+                        ))}
+                      </ul>
+                    </Box>
+                  )}
                 </Box>
               ))}
             </Box>

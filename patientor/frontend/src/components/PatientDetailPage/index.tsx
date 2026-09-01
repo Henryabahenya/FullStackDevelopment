@@ -1,16 +1,18 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Box, Typography, Button } from "@mui/material";
-import { Patient } from "../../types";
+import { Box, Typography, Button, Alert } from "@mui/material";
+import { Patient, Entry } from "../../types";
 import patientService from "../../services/patients";
 import EntryDetails from "../EntryDetails";
+import AddHealthCheckEntryForm from "../AddHealthCheckEntryForm";
 
 const PatientDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [patient, setPatient] = useState<Patient | null>(null);
   const [error, setError] = useState<string | null>(null);
-
+  const [showForm, setShowForm] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   useEffect(() => {
     if (id) {
       const fetchPatient = async () => {
@@ -79,6 +81,47 @@ const PatientDetailPage = () => {
 
         <Box sx={{ marginTop: 2 }}>
           <Typography variant="h6">Entries</Typography>
+          <Button
+            variant="outlined"
+            sx={{ mt: 1, mb: 1 }}
+            onClick={() => setShowForm(!showForm)}
+          >
+            {showForm ? "Hide entry form" : "Add HealthCheck Entry"}
+          </Button>
+
+          {showForm && (
+            <Box>
+              {formError && <Alert severity="error">{formError}</Alert>}
+              <AddHealthCheckEntryForm
+                onCancel={() => {
+                  setShowForm(false);
+                  setFormError(null);
+                }}
+                onSubmit={async (newEntry) => {
+                  if (!patient) return;
+                  try {
+                    setFormError(null);
+                    const created = await patientService.addEntry(
+                      patient.id,
+                      newEntry as Entry,
+                    );
+                    setPatient({
+                      ...patient,
+                      entries: patient.entries.concat(created),
+                    });
+                    setShowForm(false);
+                  } catch (e: unknown) {
+                    const msg =
+                      (e as any)?.response?.data ||
+                      (e as any)?.message ||
+                      "Error adding entry";
+                    setFormError(String(msg));
+                  }
+                }}
+              />
+            </Box>
+          )}
+
           {patient.entries.length === 0 ? (
             <Typography>No entries</Typography>
           ) : (

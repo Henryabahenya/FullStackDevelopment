@@ -1,0 +1,12 @@
+name: Patientor E2E Tests
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Notify
+        run: echo "Patientor E2E workflow triggered on push to main or master."

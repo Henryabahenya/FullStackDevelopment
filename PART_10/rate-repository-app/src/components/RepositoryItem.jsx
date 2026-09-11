@@ -2,22 +2,65 @@ import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
-  container: { padding: 15, backgroundColor: 'white' },
-  topContainer: { flexDirection: 'row', marginBottom: 15 },
-  avatar: { width: 48, height: 48, borderRadius: 4, marginRight: 15 },
-  details: { flex: 1 },
-  fullName: { fontWeight: 'bold', fontSize: 16, marginBottom: 4 },
-  description: { color: '#586069', marginBottom: 8 },
-  languageContainer: { alignSelf: 'flex-start', backgroundColor: '#0366d6', borderRadius: 4, paddingVertical: 4, paddingHorizontal: 8 },
-  languageText: { color: 'white', fontWeight: '600' },
-  statsContainer: { flexDirection: 'row', justifyContent: 'space-around', marginTop: 10 },
-  statItem: { alignItems: 'center', flex: 1 },
-  statCount: { fontWeight: 'bold', marginBottom: 2 },
-  statLabel: { color: '#586069' },
+  container: {
+    padding: 15,
+    backgroundColor: 'white',
+  },
+  topContainer: {
+    flexDirection: 'row',
+    marginBottom: 15,
+  },
+  avatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 4,
+    marginRight: 15,
+  },
+  details: {
+    flex: 1,
+  },
+  fullName: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginBottom: 4,
+  },
+  description: {
+    color: '#586069',
+    marginBottom: 8,
+  },
+  languageContainer: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#0366d6',
+    borderRadius: 4,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+  },
+  languageText: {
+    color: 'white',
+    fontWeight: '600',
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 5,
+  },
+  statItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  statCount: {
+    fontWeight: 'bold',
+    marginBottom: 2,
+  },
+  statLabel: {
+    color: '#586069',
+  },
 });
 
 const formatCount = (count) => {
-  if (count >= 1000) return (count / 1000).toFixed(1) + 'k';
+  if (count >= 1000) {
+    return (count / 1000).toFixed(1) + 'k';
+  }
   return count.toString();
 };
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, TextInput, Pressable, StyleSheet } from 'react-native';
+// eslint-disable-next-line import/no-unresolved
 import { Formik } from 'formik';
 import Text from './Text';
 

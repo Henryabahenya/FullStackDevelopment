@@ -1,0 +1,42 @@
+name: healthapp E2E tests
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install healthapp dependencies
+        working-directory: ./PART_9/healthapp
+        run: npm install
+
+      - name: Start healthapp server
+        working-directory: ./PART_9/healthapp
+        run: npm run dev &
+
+      - name: Wait for server to start
+        run: sleep 3
+
+      - name: Install healthapp-tests dependencies
+        working-directory: ./PART_9/healthapp-tests
+        run: npm install
+
+      - name: Install Playwright browsers
+        working-directory: ./PART_9/healthapp-tests
+        run: npx playwright install --with-deps
+
+      - name: Run E2E tests
+        working-directory: ./PART_9/healthapp-tests
+        run: npm test
